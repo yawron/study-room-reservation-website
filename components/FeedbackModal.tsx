@@ -6,6 +6,7 @@ import { Button } from './UI';
 import { Room } from '../types';
 import { Star, ThumbsUp } from 'lucide-react';
 import { api } from '../services/apiService';
+import { submitReviewAction } from '@/app/actions/reviews';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -33,13 +34,21 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ room, isOpen, onCl
 
     setIsSubmitting(true);
     try {
+        const created = await submitReviewAction({
+          roomId: room.id,
+          userId: user.id,
+          userName: user.name,
+          userAvatar: user.avatar,
+          rating,
+          comment,
+        });
         await api.addReview({
-            roomId: room.id,
-            userId: user.id,
-            userName: user.name,
-            userAvatar: user.avatar,
-            rating,
-            comment
+          roomId: created.roomId,
+          userId: created.userId,
+          userName: created.userName,
+          userAvatar: created.userAvatar,
+          rating: created.rating,
+          comment: created.comment,
         });
         
         setIsSubmitting(false);
