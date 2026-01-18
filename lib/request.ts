@@ -61,7 +61,7 @@ class RequestLayer {
       this.isRefreshing = true;
 
       try {
-        const newToken = await this.refreshTokenMock();
+        const newToken = await this.refreshTokenNetwork();
         
         if (typeof window !== 'undefined') {
             localStorage.setItem('starstudy_token', newToken);
@@ -91,21 +91,35 @@ class RequestLayer {
     }
   }
 
-  private async refreshTokenMock(): Promise<string> {
-      console.log('%c[Auth] Token Expired, Refreshing...', 'color: orange; font-weight: bold;');
-      await new Promise(resolve => setTimeout(resolve, 800)); 
-      return 'jwt_refreshed_' + Date.now();
+  private async refreshTokenNetwork(): Promise<string> {
+      const base =
+        typeof window !== 'undefined'
+          ? window.location.origin
+          : (process.env.NEXT_PUBLIC_BASE_URL ||
+             (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'));
+      const resp = await fetch(`${base}/api/auth/refresh`, { method: 'POST', credentials: 'same-origin' });
+      const json = await resp.json().catch(() => ({ code: 500, data: null, message: '刷新失败' }));
+      if (json.code === 200 && json.data?.token) {
+        return json.data.token as string;
+      }
+      throw new Error(json.message || '刷新失败');
   }
 
   // --- 核心请求逻辑 ---
   private async requestLogic<T>(url: string, method: string, data: any, config: RequestConfig): Promise<T> {
     const finalConfig = await this.requestInterceptor(config);
     
-    await new Promise(resolve => setTimeout(resolve, method === 'GET' ? 400 : 800));
+    await new Promise(resolve => setTimeout(resolve, method === 'GET' ? 200 : 500));
 
     let mockResponse: ApiResponse;
     try {
-        mockResponse = await this.mockRouter(url, method, data, finalConfig);
+        const networkEligible =
+          url.startsWith('/auth/') || url === '/rooms';
+        if (networkEligible) {
+          mockResponse = await this.networkRouter(url, method, data, finalConfig);
+        } else {
+          mockResponse = await this.mockRouter(url, method, data, finalConfig);
+        }
     } catch (e: any) {
         mockResponse = { code: 500, data: null, message: e.message };
     }
@@ -119,6 +133,29 @@ class RequestLayer {
 
   public async post<T>(url: string, data: any, config: RequestConfig = {}): Promise<T> {
     return this.requestLogic(url, 'POST', data, config);
+  }
+
+  private async networkRouter(url: string, method: string, body: any, config: RequestConfig): Promise<ApiResponse> {
+     const base =
+       typeof window !== 'undefined'
+         ? window.location.origin
+         : (process.env.NEXT_PUBLIC_BASE_URL ||
+            (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'));
+     const map: Record<string, string> = {
+       '/auth/login': '/api/auth/login',
+       '/auth/register': '/api/auth/register',
+       '/rooms': '/api/rooms',
+     };
+     const path = map[url] ?? url;
+     const headers: Record<string, string> = { 'Content-Type': 'application/json', ...(config.headers || {}) };
+     const resp = await fetch(`${base}${path}`, {
+       method,
+       headers,
+       body: method === 'GET' ? undefined : JSON.stringify(body ?? {}),
+       credentials: 'same-origin',
+     });
+     const json = await resp.json().catch(() => ({ code: 500, data: null, message: '网络错误' }));
+     return json as ApiResponse;
   }
 
   // --- Mock 路由表 ---
