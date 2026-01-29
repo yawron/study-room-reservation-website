@@ -1,200 +1,162 @@
-import { User } from '../types';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 // ==========================================
-// 请求层封装 (Simulated Axios with Interceptors)
+// 请求层封装 (Standard Axios with Interceptors)
 // ==========================================
 
-interface ApiResponse<T = any> {
+// 定义通用响应结构
+export interface ApiResponse<T = any> {
   code: number;
   data: T;
   message: string;
 }
 
-interface RequestConfig {
-  headers?: Record<string, string>;
+// 扩展 AxiosRequestConfig 以支持自定义属性
+interface CustomRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean; // 内部标记，防止无限重试
 }
 
 class RequestLayer {
-  private baseUrl: string;
-  // --- JWT 双令牌刷新逻辑核心变量 ---
+  private instance: AxiosInstance;
   private isRefreshing = false;
   private requestsQueue: ((token: string) => void)[] = [];
 
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
+  constructor(baseURL: string) {
+    this.instance = axios.create({
+      baseURL,
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true, // 允许跨域携带 Cookie (关键: 用于发送 Refresh Token)
+    });
+
+    this.setupInterceptors();
   }
 
-  // --- 1. 请求拦截器 (Request Interceptor) ---
-  private async requestInterceptor(config: RequestConfig): Promise<RequestConfig> {
-    const newConfig = { ...config, headers: { ...config.headers } };
-    
-    if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('starstudy_token');
-        if (token) {
-           newConfig.headers['Authorization'] = `Bearer ${token}`;
-        }
-    }
-    
-    return newConfig;
-  }
-
-  // --- 2. 响应拦截器 (Response Interceptor) ---
-  private async responseInterceptor(response: ApiResponse, originalRequestConfig: RequestConfig, url: string, method: string, data?: any): Promise<any> {
-    // Case 1: 正常成功
-    if (response.code === 200) {
-      return response.data;
-    } 
-    
-    // Case 2: Token 过期 (401) 且未重试过
-    else if (response.code === 401 && !originalRequestConfig._retry) {
-      if (this.isRefreshing) {
-        return new Promise((resolve) => {
-          this.requestsQueue.push((newToken) => {
-            originalRequestConfig.headers = { ...originalRequestConfig.headers, Authorization: `Bearer ${newToken}` };
-            resolve(this.requestLogic(url, method, data, originalRequestConfig));
-          });
-        });
-      }
-
-      originalRequestConfig._retry = true;
-      this.isRefreshing = true;
-
-      try {
-        const newToken = await this.refreshTokenNetwork();
-        
+  private setupInterceptors() {
+    // --- 请求拦截器 ---
+    this.instance.interceptors.request.use(
+      (config: InternalAxiosRequestConfig) => {
         if (typeof window !== 'undefined') {
-            localStorage.setItem('starstudy_token', newToken);
+          const token = localStorage.getItem('starstudy_token');
+          if (token) {
+            config.headers.set('Authorization', `Bearer ${token}`);
+          }
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // --- 响应拦截器 ---
+    this.instance.interceptors.response.use(
+      (response: AxiosResponse<ApiResponse>) => {
+        // 直接返回 data 字段中的 payload (假设后端返回格式为 { code, data, message })
+        // 如果后端返回的就是标准 AxiosResponse，这里可以根据约定解包
+        // 这里我们约定：只要 HTTP 状态码是 200，就认为请求成功，但业务状态码(code)可能不是 200
+        const resData = response.data;
+        
+        // 如果业务状态码也是 200，直接返回数据部分
+        if (resData.code === 200) {
+            return resData.data;
         }
         
-        this.requestsQueue.forEach(cb => cb(newToken));
-        this.requestsQueue = [];
-        
-        originalRequestConfig.headers = { ...originalRequestConfig.headers, Authorization: `Bearer ${newToken}` };
-        return this.requestLogic(url, method, data, originalRequestConfig);
-      } catch (refreshErr) {
-        this.requestsQueue = [];
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem('starstudy_token');
-            localStorage.removeItem('starstudy_user');
-            window.location.href = '/login'; 
+        // 兼容处理：有些接口可能直接返回数据没有 code 包装，或者 code 不在顶层
+        // 这里根据项目约定，假设所有接口都遵循 ApiResponse 结构
+        // 如果遇到非 200 的业务错误，抛出异常
+        return Promise.reject(new Error(resData.message || '业务处理失败'));
+      },
+      async (error) => {
+        const originalRequest = error.config as CustomRequestConfig;
+
+        // 处理 401 未授权 (Token 过期)
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          if (this.isRefreshing) {
+            // 如果正在刷新，将当前请求加入队列
+            return new Promise((resolve) => {
+              this.requestsQueue.push((newToken) => {
+                originalRequest.headers.set('Authorization', `Bearer ${newToken}`);
+                resolve(this.instance(originalRequest));
+              });
+            });
+          }
+
+          originalRequest._retry = true;
+          this.isRefreshing = true;
+
+          try {
+            // 尝试刷新 Token
+            const newToken = await this.refreshToken();
+            
+            // 刷新成功，更新本地存储
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('starstudy_token', newToken);
+            }
+
+            // 执行队列中的请求
+            this.requestsQueue.forEach((cb) => cb(newToken));
+            this.requestsQueue = [];
+
+            // 重试当前请求
+            originalRequest.headers.set('Authorization', `Bearer ${newToken}`);
+            return this.instance(originalRequest);
+          } catch (refreshError) {
+            // 刷新失败，清除状态并跳转登录
+            this.requestsQueue = [];
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('starstudy_token');
+              localStorage.removeItem('starstudy_user');
+              // 避免在服务端执行跳转
+              window.location.href = '/login';
+            }
+            return Promise.reject(new Error('会话已失效，请重新登录'));
+          } finally {
+            this.isRefreshing = false;
+          }
         }
-        throw new Error('会话已失效，请重新登录');
-      } finally {
-        this.isRefreshing = false;
+
+        // 处理其他错误
+        const message = error.response?.data?.message || error.message || '网络请求异常';
+        return Promise.reject(new Error(message));
       }
-    } 
+    );
+  }
+
+  // 刷新 Token 的具体实现
+  private async refreshToken(): Promise<string> {
+    // 使用一个新的 axios 实例来刷新，避免拦截器死循环
+    // 注意：这里必须带上 withCredentials: true 以发送 HttpOnly Cookie
+    const res = await axios.post<ApiResponse<{ token: string }>>(
+      '/api/auth/refresh', 
+      {}, 
+      { withCredentials: true }
+    );
     
-    // Case 3: 其他错误
-    else {
-      throw new Error(response.message || '网络请求异常');
+    if (res.data.code === 200 && res.data.data?.token) {
+        return res.data.data.token;
     }
+    throw new Error(res.data.message || '刷新失败');
   }
 
-  private async refreshTokenNetwork(): Promise<string> {
-      const base =
-        typeof window !== 'undefined'
-          ? window.location.origin
-          : (process.env.NEXT_PUBLIC_BASE_URL ||
-             (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'));
-      const resp = await fetch(`${base}/api/auth/refresh`, { method: 'POST', credentials: 'same-origin' });
-      const json = await resp.json().catch(() => ({ code: 500, data: null, message: '刷新失败' }));
-      if (json.code === 200 && json.data?.token) {
-        return json.data.token as string;
-      }
-      throw new Error(json.message || '刷新失败');
+  // --- 公共方法 ---
+
+  public async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    return this.instance.get(url, config) as Promise<T>;
   }
 
-  // --- 核心请求逻辑 ---
-  private async requestLogic<T>(url: string, method: string, data: any, config: RequestConfig): Promise<T> {
-    const finalConfig = await this.requestInterceptor(config);
-    
-    await new Promise(resolve => setTimeout(resolve, method === 'GET' ? 200 : 500));
-
-    let mockResponse: ApiResponse;
-    try {
-        const networkEligible =
-          url.startsWith('/auth/') || url === '/rooms';
-        if (networkEligible) {
-          mockResponse = await this.networkRouter(url, method, data, finalConfig);
-        } else {
-          mockResponse = await this.mockRouter(url, method, data, finalConfig);
-        }
-    } catch (e: any) {
-        mockResponse = { code: 500, data: null, message: e.message };
-    }
-
-    return this.responseInterceptor(mockResponse, config, url, method, data);
+  public async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    return this.instance.post(url, data, config) as Promise<T>;
   }
 
-  public async get<T>(url: string, config: RequestConfig = {}): Promise<T> {
-    return this.requestLogic(url, 'GET', null, config);
+  public async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    return this.instance.put(url, data, config) as Promise<T>;
   }
 
-  public async post<T>(url: string, data: any, config: RequestConfig = {}): Promise<T> {
-    return this.requestLogic(url, 'POST', data, config);
-  }
-
-  private async networkRouter(url: string, method: string, body: any, config: RequestConfig): Promise<ApiResponse> {
-     const base =
-       typeof window !== 'undefined'
-         ? window.location.origin
-         : (process.env.NEXT_PUBLIC_BASE_URL ||
-            (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'));
-     const map: Record<string, string> = {
-       '/auth/login': '/api/auth/login',
-       '/auth/register': '/api/auth/register',
-       '/rooms': '/api/rooms',
-     };
-     const path = map[url] ?? url;
-     const headers: Record<string, string> = { 'Content-Type': 'application/json', ...(config.headers || {}) };
-     const resp = await fetch(`${base}${path}`, {
-       method,
-       headers,
-       body: method === 'GET' ? undefined : JSON.stringify(body ?? {}),
-       credentials: 'same-origin',
-     });
-     const json = await resp.json().catch(() => ({ code: 500, data: null, message: '网络错误' }));
-     return json as ApiResponse;
-  }
-
-  // --- Mock 路由表 ---
-  private async mockRouter(url: string, method: string, body: any, config: RequestConfig): Promise<ApiResponse> {
-     // Dynamic import to avoid SSR issues with mockData localstorage
-     const { MOCK_ROOMS, getStoredUsers, addUser } = await import('../services/mockData');
-     
-     // Auth Routes
-     if (url === '/auth/login' && method === 'POST') {
-         const users = getStoredUsers();
-         const user = users.find(u => u.email === body.email);
-         if (user) {
-             return { code: 200, data: { user, token: 'jwt_' + Date.now() }, message: '登录成功' };
-         }
-         return { code: 400, data: null, message: '账号不存在或密码错误' };
-     }
-
-     if (url === '/auth/register' && method === 'POST') {
-         const users = getStoredUsers();
-         if (users.find(u => u.email === body.email)) {
-             return { code: 400, data: null, message: '该邮箱已被注册' };
-         }
-         const newUser = addUser(body);
-         return { code: 200, data: { user: newUser, token: 'jwt_' + Date.now() }, message: '注册成功' };
-     }
-
-     const authHeader = config.headers?.['Authorization'];
-     if (!authHeader) {
-         if (url !== '/rooms' && method === 'GET') { 
-             return { code: 401, data: null, message: '未授权' };
-         }
-     }
-
-     if (url === '/rooms' && method === 'GET') {
-         return { code: 200, data: MOCK_ROOMS, message: '获取成功' };
-     }
-
-     return { code: 200, data: { success: true }, message: '操作成功' };
+  public async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    return this.instance.delete(url, config) as Promise<T>;
   }
 }
 
-export const request = new RequestLayer('/api/v1');
+// 导出单例，BaseURL 默认为 /api
+export const request = new RequestLayer('/api');

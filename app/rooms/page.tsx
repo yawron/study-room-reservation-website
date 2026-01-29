@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import RoomsPageClient from '@/components/RoomsPageClient';
+import { MOCK_ROOMS } from '@/services/mockData';
 
 export const revalidate = 60;
 
@@ -12,10 +13,20 @@ async function getBaseUrl() {
 
 async function getRooms() {
   const base = await getBaseUrl();
-  const res = await fetch(`${base}/api/rooms`, {
-    next: { revalidate: 60, tags: ['rooms'] },
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${base}/api/rooms`, {
+      next: { revalidate: 60, tags: ['rooms'] },
+    });
+    if (!res.ok) {
+      return MOCK_ROOMS;
+    }
+    const payload = await res.json();
+    const data = Array.isArray(payload) ? payload : payload?.data;
+    if (!Array.isArray(data)) return MOCK_ROOMS;
+    return data;
+  } catch {
+    return MOCK_ROOMS;
+  }
 }
 
 function SkeletonGrid() {
