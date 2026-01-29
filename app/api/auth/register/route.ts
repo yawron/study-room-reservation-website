@@ -1,12 +1,5 @@
 import { NextResponse } from 'next/server';
-
-function createAccessToken(userId: string) {
-  return `jwt_${Date.now()}_${userId}`;
-}
-
-function createRefreshToken(userId: string) {
-  return `rt_${Date.now()}_${userId}`;
-}
+import { signAccessToken, signRefreshToken } from '@/lib/jwt';
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
@@ -22,8 +15,8 @@ export async function POST(req: Request) {
     email,
     avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
   };
-  const access = createAccessToken(user.id);
-  const refresh = createRefreshToken(user.id);
+  const access = await signAccessToken(user.id);
+  const refresh = await signRefreshToken(user.id);
 
   const res = NextResponse.json(
     { code: 200, data: { user, token: access }, message: '注册成功' },
