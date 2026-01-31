@@ -93,14 +93,14 @@ class ApiService {
   }
 
   // --- Bookings ---
-  async createBooking(bookingData: Omit<Booking, 'id' | 'status'>): Promise<Booking> {
+  async createBooking(bookingData: Omit<Booking, 'id' | 'status'> & Partial<Pick<Booking, 'id' | 'status'>>): Promise<Booking> {
     // 模拟请求延迟
     await new Promise(resolve => setTimeout(resolve, 800));
     
     const newBooking: Booking = {
       ...bookingData,
-      id: Math.random().toString(36).substr(2, 9),
-      status: 'confirmed'
+      id: bookingData.id ?? Math.random().toString(36).substr(2, 9),
+      status: bookingData.status ?? 'confirmed'
     };
     
     this.bookings = [newBooking, ...this.bookings];
