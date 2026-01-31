@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api } from '../services/apiService';
+import { submitBookingAction } from '@/app/actions/bookings';
 import { Room } from '../types';
 import { useAuth } from '../context/AuthContext';
 
@@ -18,21 +19,17 @@ export const useReservation = (room: Room, onSuccess: () => void) => {
 
     setIsSubmitting(true);
     try {
-      const startHour = parseInt(startTime.split(':')[0]);
-      const endHour = startHour + duration;
-      const endTime = `${endHour.toString().padStart(2, '0')}:00`;
-      const totalPrice = room.pricePerHour * duration;
-
-      await api.createBooking({
+      const booking = await submitBookingAction({
         roomId: room.id,
         roomName: room.name,
         userId: user.id,
         date,
         startTime,
-        endTime,
-        totalPrice,
+        duration,
+        pricePerHour: room.pricePerHour,
         imageUrl: room.imageUrl,
       });
+      await api.createBooking(booking);
 
       setStep(3); // Move to success step
       setTimeout(() => {
