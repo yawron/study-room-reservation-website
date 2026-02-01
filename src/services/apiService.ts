@@ -57,8 +57,8 @@ class ApiService {
   }
 
   // 获取当前用户信息 (用于初始化 Session)
-  async getProfile(): Promise<User> {
-    return request.get<User>('/auth/me');
+  async getProfile(config?: { skipRedirect?: boolean }): Promise<User> {
+    return request.get<User>('/auth/me', config);
   }
 
   async getRooms(category?: string): Promise<Room[]> {

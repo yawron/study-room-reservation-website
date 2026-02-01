@@ -30,11 +30,14 @@ interface CustomRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
   // 是否跳过 Token 注入（如登录/注册接口）
   skipAuth?: boolean;
+  // 认证失败时是否跳过自动跳转到登录页
+  skipRedirect?: boolean;
 }
 
 // 导出给外部使用的配置类型
 export interface RequestConfig extends AxiosRequestConfig {
   skipAuth?: boolean;
+  skipRedirect?: boolean;
 }
 
 interface RequestLayerConfig {
@@ -52,7 +55,7 @@ interface RequestLayerConfig {
 class RequestLayer {
   private instance: AxiosInstance;
   private isRefreshing = false;
-  private requestsQueue: ((token: string) => void)[] = [];
+  private requestsQueue: { resolve: (value: any) => void; reject: (reason?: any) => void; config: CustomRequestConfig }[] = [];
   private config: RequestLayerConfig;
 
   constructor(config: RequestLayerConfig) {
@@ -108,12 +111,11 @@ class RequestLayer {
         if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
           if (this.isRefreshing) {
             // 并发处理：若正在刷新，将后续请求加入队列等待
-            return new Promise((resolve) => {
-              this.requestsQueue.push((newToken) => {
-                if (originalRequest.headers) {
-                    originalRequest.headers.set(this.config.authHeader!, `Bearer ${newToken}`);
-                }
-                resolve(this.instance(originalRequest));
+            return new Promise((resolve, reject) => {
+              this.requestsQueue.push({
+                resolve,
+                reject,
+                config: originalRequest
               });
             });
           }
@@ -129,7 +131,12 @@ class RequestLayer {
             setAccessToken(newToken);
 
             // 执行队列中的挂起请求
-            this.requestsQueue.forEach((cb) => cb(newToken));
+            this.requestsQueue.forEach(({ resolve, reject, config }) => {
+                if (config.headers) {
+                    config.headers.set(this.config.authHeader!, `Bearer ${newToken}`);
+                }
+                this.instance(config).then(resolve).catch(reject);
+            });
             this.requestsQueue = [];
 
             // 重试当前请求
@@ -138,8 +145,15 @@ class RequestLayer {
             }
             return this.instance(originalRequest);
           } catch (refreshError) {
-            // 刷新失败 (RT 也过期)，强制登出
-            this.handleSessionExpired();
+            // 刷新失败 (RT 也过期)
+            // 拒绝队列中的所有请求
+            this.requestsQueue.forEach(({ reject }) => {
+                reject(new ApiError('会话已失效', 401));
+            });
+            this.requestsQueue = [];
+
+            // 如果请求配置了 skipRedirect，则不跳转
+            this.handleSessionExpired(originalRequest.skipRedirect);
             return Promise.reject(new ApiError('会话已失效，请重新登录', 401));
           } finally {
             this.isRefreshing = false;
@@ -174,10 +188,15 @@ class RequestLayer {
     }
   }
 
-  private handleSessionExpired() {
+  private handleSessionExpired(skipRedirect = false) {
+    // 确保队列中的请求被拒绝，避免 Promise 悬挂
+    this.requestsQueue.forEach(({ reject }) => {
+        reject(new ApiError('会话已失效', 401));
+    });
     this.requestsQueue = [];
+    
     clearAccessToken();
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !skipRedirect) {
       // 避免服务端执行
       window.location.href = this.config.loginUrl!;
     }

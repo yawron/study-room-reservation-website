@@ -27,8 +27,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const checkSession = async () => {
       // 尝试从 API 获取用户信息 (自动触发 Token 刷新)
+      // 传入 skipRedirect: true，防止在未登录时无限循环跳转 /login
       try {
-        const user = await api.getProfile();
+        const user = await api.getProfile({ skipRedirect: true });
         setState({
           user,
           isAuthenticated: true,
@@ -36,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } catch (error) {
         // 验证失败，清除所有状态
-        clearAccessToken(); // 确保内存也清理
+        clearAccessToken();
         setState({ user: null, isAuthenticated: false, isLoading: false });
       }
     };
