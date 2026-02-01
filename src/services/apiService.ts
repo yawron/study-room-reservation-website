@@ -58,6 +58,15 @@ class ApiService {
     return request.post('/auth/register', { name, email });
   }
 
+  async logout(): Promise<void> {
+    return request.post('/auth/logout');
+  }
+
+  // 获取当前用户信息 (用于初始化 Session)
+  async getProfile(): Promise<User> {
+    return request.get<User>('/auth/me');
+  }
+
   async getRooms(category?: string): Promise<Room[]> {
     // 模拟调用
     const allRooms = await request.get<Room[]>('/rooms');
