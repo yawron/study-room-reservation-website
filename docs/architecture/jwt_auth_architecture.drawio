@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="jwt-architecture-v4" name="JWT Authentication Architecture V4">
-        <mxGraphModel dx="3104" dy="622" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1600" math="0" shadow="0">
+        <mxGraphModel dx="2730" dy="560" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1600" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -50,10 +50,10 @@
                     <mxGeometry x="1000" y="40" width="400" height="1200" as="geometry"/>
                 </mxCell>
                 <mxCell id="60" value="中间件 (Middleware)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1" parent="13" vertex="1">
-                    <mxGeometry x="40" y="70" width="320" height="120" as="geometry"/>
+                    <mxGeometry x="40" y="70" width="320" height="160" as="geometry"/>
                 </mxCell>
                 <mxCell id="61" value="路由守卫 (Route Guard):&#10;• 拦截 /dashboard 等受保护路径&#10;• 验证 HttpOnly Cookie (RT)&#10;• 无效则重定向至 /login" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#666666;spacingLeft=10;" parent="60" vertex="1">
-                    <mxGeometry y="40" width="320" height="80" as="geometry"/>
+                    <mxGeometry x="10" y="74.17" width="320" height="106.66666666666666" as="geometry"/>
                 </mxCell>
                 <mxCell id="14" value="POST /auth/login" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" parent="13" vertex="1">
                     <mxGeometry x="40" y="280" width="320" height="80" as="geometry"/>

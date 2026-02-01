@@ -18,7 +18,7 @@ interface BookingModalProps {
 export const BookingModal: React.FC<BookingModalProps> = ({ room, isOpen, onClose, onSuccess }) => {
   const router = useRouter();
 
-  // Custom Hook: Reservation Logic
+  // 预订逻辑 Hook
   const { 
     step, setStep, date, setDate, startTime, setStartTime, 
     duration, setDuration, isSubmitting, submitReservation, 

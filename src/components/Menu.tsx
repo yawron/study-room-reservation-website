@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useRef, ReactNode, useLayou
 import ReactDOM from 'react-dom';
 import { useClickOutside } from '../hooks/useClickOutside';
 
-// 1. Context
+// Context
 interface MenuContextType {
   isOpen: boolean;
   toggle: () => void;
@@ -14,7 +14,7 @@ interface MenuContextType {
 
 const MenuContext = createContext<MenuContextType | undefined>(undefined);
 
-// 2. Root Component
+// Root 组件
 interface MenuRootProps {
   children: ReactNode;
   className?: string;
@@ -37,7 +37,7 @@ const Root: React.FC<MenuRootProps> = ({ children, className = '' }) => {
   );
 };
 
-// 3. Trigger Component
+// Trigger 组件
 const Trigger: React.FC<{ children: ReactNode; className?: string }> = ({ children, className = '' }) => {
   const context = useContext(MenuContext);
   if (!context) throw new Error('Menu.Trigger must be used within Menu.Root');
@@ -49,7 +49,7 @@ const Trigger: React.FC<{ children: ReactNode; className?: string }> = ({ childr
   );
 };
 
-// 4. List (Dropdown) Component
+// List (下拉) 组件
 const List: React.FC<{ children: ReactNode; className?: string; align?: 'left' | 'right' }> = ({
   children,
   className = '',
@@ -115,7 +115,7 @@ const List: React.FC<{ children: ReactNode; className?: string; align?: 'left' |
   );
 };
 
-// 5. Item Component
+// Item 组件
 interface MenuItemProps {
   children: ReactNode;
   onClick?: () => void;

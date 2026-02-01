@@ -38,7 +38,7 @@ export const Navbar: React.FC = () => {
               <span className="font-bold text-lg md:text-xl tracking-tight text-brand-dark">STARSTUDY</span>
             </div>
 
-            {/* Desktop Menu */}
+            {/* 桌面端菜单 */}
             <div className="hidden md:flex space-x-8 items-center">
               <Link href="/" className={getLinkClass('/')}>首页</Link>
               <Link href="/rooms" className={getLinkClass('/rooms')}>所有房型</Link>
@@ -90,7 +90,7 @@ export const Navbar: React.FC = () => {
               )}
             </div>
 
-            {/* Mobile menu button */}
+            {/* 移动端菜单按钮 */}
             <div className="md:hidden flex items-center">
               <button 
                 onClick={() => setIsOpen(!isOpen)} 
@@ -103,7 +103,7 @@ export const Navbar: React.FC = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
+      {/* 移动端菜单 */}
       <Drawer.Root isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <Drawer.Overlay />
         <Drawer.Content side="top" className="mt-[64px] border-t border-gray-100">

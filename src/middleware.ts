@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyRefresh } from '@/lib/jwt';
+import { verifyRefresh, REFRESH_COOKIE_CONFIG } from '@/lib/jwt';
 
 // 定义受保护的路由路径
 const protectedRoutes = ['/dashboard'];
@@ -20,7 +20,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. 获取 Refresh Token (存储在 HttpOnly Cookie 中)
-  const refreshToken = request.cookies.get('starstudy_refresh')?.value;
+  const refreshToken = request.cookies.get(REFRESH_COOKIE_CONFIG.name)?.value;
 
   let isAuthenticated = false;
 

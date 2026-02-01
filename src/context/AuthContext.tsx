@@ -62,6 +62,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkSession();
   }, []);
 
+  // 监听多标签页同步登出
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      // 只有在其他标签页修改了 starstudy_user (通常是删除/置空) 时触发
+      if (event.key === 'starstudy_user' && !event.newValue) {
+        clearAccessToken();
+        setState({ user: null, isAuthenticated: false, isLoading: false });
+        // 可选：重定向到首页或登录页
+        // window.location.href = '/login'; 
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const handleAuthSuccess = (user: User, token: string) => {
     // Token 存入内存
     setAccessToken(token);

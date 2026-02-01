@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import { X } from 'lucide-react';
 import { useClickOutside } from '../hooks/useClickOutside';
 
-// 1. Context API: 解决跨层级状态传递问题 (Context API to solve cross-level state passing)
+// Context API: 解决跨层级状态传递问题
 interface ModalContextType {
   onClose: () => void;
 }
@@ -18,7 +18,7 @@ interface ModalRootProps {
   className?: string;
 }
 
-// 2. React Portal: 规避父容器布局限制 (React Portal to avoid parent layout constraints)
+// React Portal: 规避父容器布局限制
 const Root: React.FC<ModalRootProps> = ({ isOpen, onClose, children, className = '' }) => {
   // 复用 useClickOutside Hook
   const contentRef = useClickOutside(onClose);
@@ -52,7 +52,7 @@ const Root: React.FC<ModalRootProps> = ({ isOpen, onClose, children, className =
   );
 };
 
-// 3. 复合组件模式 (Compound Component Pattern)
+// 复合组件模式
 interface ModalHeaderProps {
   children: ReactNode;
   className?: string;

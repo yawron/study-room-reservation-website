@@ -40,3 +40,15 @@ export async function verifyRefresh(token: string) {
   if (payload.typ !== 'refresh') throw new Error('invalid token type');
   return payload;
 }
+
+// Cookie 默认配置
+export const REFRESH_COOKIE_CONFIG = {
+  name: 'starstudy_refresh',
+  options: {
+    httpOnly: true,
+    sameSite: 'lax' as const,
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: 60 * 60 * 24 * 7, // 7 天
+  },
+};

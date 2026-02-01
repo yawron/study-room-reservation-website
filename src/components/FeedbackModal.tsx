@@ -94,7 +94,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ room, isOpen, onCl
                     </div>
                 </div>
 
-                {/* Star Rating Selection */}
+                {/* 星级评分选择 */}
                 <div className="flex flex-col items-center space-y-2 py-2">
                     <label className="text-sm font-medium text-gray-700">总体评分</label>
                     <div className="flex space-x-2">

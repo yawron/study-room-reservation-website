@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import ReactDOM from 'react-dom';
 import { useClickOutside } from '../hooks/useClickOutside';
 
-// 1. Context API: 状态管理
+// Context API: 状态管理
 interface DrawerContextType {
   isOpen: boolean;
   onClose: () => void;
@@ -17,7 +17,7 @@ interface DrawerRootProps {
   children: ReactNode;
 }
 
-// 2. React Portal: 渲染到 body 节点，规避父级 overflow 限制
+// React Portal: 渲染到 body 节点
 const Root: React.FC<DrawerRootProps> = ({ isOpen, onClose, children }) => {
   // 锁定背景滚动
   useEffect(() => {
@@ -43,7 +43,7 @@ const Root: React.FC<DrawerRootProps> = ({ isOpen, onClose, children }) => {
   );
 };
 
-// 3. 复合组件: Overlay (遮罩层)
+// 复合组件: Overlay
 const Overlay: React.FC = () => {
   const context = useContext(DrawerContext);
   if (!context) throw new Error('Drawer.Overlay must be used within Drawer.Root');
@@ -56,7 +56,7 @@ const Overlay: React.FC = () => {
   );
 };
 
-// 4. 复合组件: Content (内容区域)
+// 复合组件: Content
 interface DrawerContentProps {
   children: ReactNode;
   className?: string;

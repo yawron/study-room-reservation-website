@@ -1,16 +1,17 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig, AxiosError } from 'axios';
 import { getAccessToken, setAccessToken, clearAccessToken } from './token';
 
-// ==========================================
 // 类型定义
-// ==========================================
 
+// API 响应体结构
 export interface ApiResponse<T = any> {
   code: number;
   data: T;
   message: string;
 }
 
+// API 错误类
+// 继承 Error 类，添加状态码和数据字段
 export class ApiError extends Error {
   code: number;
   data: any;
@@ -25,20 +26,28 @@ export class ApiError extends Error {
 
 // 扩展 AxiosRequestConfig
 interface CustomRequestConfig extends InternalAxiosRequestConfig {
+  // 标记是否已重试，避免无限循环
   _retry?: boolean;
+  // 是否跳过 Token 注入（如登录/注册接口）
+  skipAuth?: boolean;
+}
+
+// 导出给外部使用的配置类型
+export interface RequestConfig extends AxiosRequestConfig {
+  skipAuth?: boolean;
 }
 
 interface RequestLayerConfig {
+  // 基础 URL
   baseURL: string;
+  // 认证头字段，默认 Authorization
   authHeader?: string;
-  tokenKey?: string;
+  // 登录页面路径
   loginUrl?: string;
   refreshTokenUrl?: string;
 }
 
-// ==========================================
 // 请求层封装
-// ==========================================
 
 class RequestLayer {
   private instance: AxiosInstance;
@@ -49,7 +58,6 @@ class RequestLayer {
   constructor(config: RequestLayerConfig) {
     this.config = {
       authHeader: 'Authorization',
-      tokenKey: 'starstudy_token', // 这里的 tokenKey 仅作为配置保留，主要用于兼容或未来扩展，实际 AccessToken 走内存
       loginUrl: '/login',
       refreshTokenUrl: '/auth/refresh', // 相对 baseURL 的路径
       ...config,
@@ -58,22 +66,20 @@ class RequestLayer {
     this.instance = axios.create({
       baseURL: this.config.baseURL,
       timeout: 15000, // 增加一点超时时间
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
     });
 
     this.setupInterceptors();
   }
 
   private setupInterceptors() {
-    // --- 请求拦截器 ---
+    // 请求拦截器
     this.instance.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
-        // 从内存中获取 Token
+        // 从内存获取 Access Token 并注入请求头
         const token = getAccessToken();
-        if (token && config.headers) {
+        const customConfig = config as CustomRequestConfig;
+        
+        if (token && config.headers && !customConfig.skipAuth) {
             config.headers.set(this.config.authHeader!, `Bearer ${token}`);
         }
         return config;
@@ -81,7 +87,7 @@ class RequestLayer {
       (error) => Promise.reject(error)
     );
 
-    // --- 响应拦截器 ---
+    // 响应拦截器
     this.instance.interceptors.response.use(
       (response: AxiosResponse<ApiResponse>) => {
         // 解包逻辑：约定后端返回结构 { code, data, message }
@@ -98,10 +104,10 @@ class RequestLayer {
       async (error: AxiosError<ApiResponse>) => {
         const originalRequest = error.config as CustomRequestConfig;
 
-        // 处理 401 未授权 (Token 过期)
+        // 捕获 401 错误，触发 Token 刷新逻辑
         if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
           if (this.isRefreshing) {
-            // 如果正在刷新，将当前请求加入队列
+            // 并发处理：若正在刷新，将后续请求加入队列等待
             return new Promise((resolve) => {
               this.requestsQueue.push((newToken) => {
                 if (originalRequest.headers) {
@@ -116,12 +122,13 @@ class RequestLayer {
           this.isRefreshing = true;
 
           try {
+            // 发起刷新请求，获取新 Token (Cookie 会自动携带 RT)
             const newToken = await this.refreshToken();
             
             // 刷新成功，更新内存中的 Token
             setAccessToken(newToken);
 
-            // 执行队列中的请求
+            // 执行队列中的挂起请求
             this.requestsQueue.forEach((cb) => cb(newToken));
             this.requestsQueue = [];
 
@@ -131,7 +138,7 @@ class RequestLayer {
             }
             return this.instance(originalRequest);
           } catch (refreshError) {
-            // 刷新失败，清除状态并跳转
+            // 刷新失败 (RT 也过期)，强制登出
             this.handleSessionExpired();
             return Promise.reject(new ApiError('会话已失效，请重新登录', 401));
           } finally {
@@ -149,15 +156,13 @@ class RequestLayer {
 
   private async refreshToken(): Promise<string> {
     // 使用一个新的 axios 实例来刷新，避免拦截器死循环
-    // 注意：baseURL 需要与主实例一致，或者手动拼接
-    // 这里我们假设 refreshTokenUrl 是相对于 baseURL 的
-    const refreshUrl = `${this.config.baseURL}${this.config.refreshTokenUrl}`;
-    
     try {
         const res = await axios.post<ApiResponse<{ token: string }>>(
-            refreshUrl, 
+            this.config.refreshTokenUrl!, 
             {}, 
-            { withCredentials: true }
+            { 
+                baseURL: this.config.baseURL,
+            }
         );
         
         if (res.data.code === 200 && res.data.data?.token) {
@@ -180,21 +185,21 @@ class RequestLayer {
     }
   }
 
-  // --- 公共方法 (泛型增强) ---
+  // 公共方法 (泛型增强)
 
-  public async get<T = any, R = T>(url: string, config?: AxiosRequestConfig): Promise<R> {
+  public async get<T = any, R = T>(url: string, config?: RequestConfig): Promise<R> {
     return this.instance.get(url, config) as Promise<R>;
   }
 
-  public async post<T = any, R = T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<R> {
+  public async post<T = any, R = T>(url: string, data?: any, config?: RequestConfig): Promise<R> {
     return this.instance.post(url, data, config) as Promise<R>;
   }
 
-  public async put<T = any, R = T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<R> {
+  public async put<T = any, R = T>(url: string, data?: any, config?: RequestConfig): Promise<R> {
     return this.instance.put(url, data, config) as Promise<R>;
   }
 
-  public async delete<T = any, R = T>(url: string, config?: AxiosRequestConfig): Promise<R> {
+  public async delete<T = any, R = T>(url: string, config?: RequestConfig): Promise<R> {
     return this.instance.delete(url, config) as Promise<R>;
   }
 }

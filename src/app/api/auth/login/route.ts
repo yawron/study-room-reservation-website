@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { INITIAL_USER } from '@/services/mockData';
-import { signAccessToken, signRefreshToken } from '@/lib/jwt';
+import { signAccessToken, signRefreshToken, REFRESH_COOKIE_CONFIG } from '@/lib/jwt';
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
@@ -26,12 +26,6 @@ export async function POST(req: Request) {
     { code: 200, data: { user, token: access }, message: '登录成功' },
     { status: 200 }
   );
-  res.cookies.set('starstudy_refresh', refresh, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: 60 * 60 * 24 * 7,
-  });
+  res.cookies.set(REFRESH_COOKIE_CONFIG.name, refresh, REFRESH_COOKIE_CONFIG.options);
   return res;
 }
