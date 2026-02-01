@@ -19,6 +19,12 @@ interface DrawerRootProps {
 
 // React Portal: 渲染到 body 节点
 const Root: React.FC<DrawerRootProps> = ({ isOpen, onClose, children }) => {
+  const [mounted, setMounted] = React.useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // 锁定背景滚动
   useEffect(() => {
     if (isOpen) {
@@ -31,7 +37,7 @@ const Root: React.FC<DrawerRootProps> = ({ isOpen, onClose, children }) => {
 
   // 为了动画效果，我们需要始终渲染 Portal，但通过 CSS 控制显隐
   // 或者简单的条件渲染（这里使用条件渲染配合 CSS 动画类）
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   return ReactDOM.createPortal(
     <DrawerContext.Provider value={{ isOpen, onClose }}>

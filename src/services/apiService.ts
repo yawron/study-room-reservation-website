@@ -1,6 +1,7 @@
 import { MOCK_ROOMS } from './mockData';
 import { Booking, Room, User, Review } from '../types';
 import { request } from '../lib/request';
+import { getUserBookingsAction, cancelBookingAction } from '@/app/actions/bookings';
 
 // Initial Mock Reviews
 const INITIAL_REVIEWS: Review[] = [
@@ -27,17 +28,10 @@ const INITIAL_REVIEWS: Review[] = [
 ];
 
 class ApiService {
-  private bookings: Booking[] = [];
   private reviews: Review[] = [];
 
   constructor() {
     if (typeof window !== 'undefined') {
-      // Load bookings
-      const savedBookings = localStorage.getItem('starstudy_bookings');
-      if (savedBookings) {
-        this.bookings = JSON.parse(savedBookings);
-      }
-
       // Load reviews
       const savedReviews = localStorage.getItem('starstudy_reviews');
       if (savedReviews) {
@@ -102,37 +96,22 @@ class ApiService {
   }
 
   // --- Bookings ---
-  async createBooking(bookingData: Omit<Booking, 'id' | 'status'> & Partial<Pick<Booking, 'id' | 'status'>>): Promise<Booking> {
-    // 模拟请求延迟
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    const newBooking: Booking = {
-      ...bookingData,
-      id: bookingData.id ?? Math.random().toString(36).substr(2, 9),
-      status: bookingData.status ?? 'confirmed'
-    };
-    
-    this.bookings = [newBooking, ...this.bookings];
-    this.saveToStorage();
-    return newBooking;
-  }
+  // 已重构为 Server Action，此处保留方法签名但委托给 Action 处理
 
   async getUserBookings(userId: string): Promise<Booking[]> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return this.bookings.filter(b => b.userId === userId);
+    // 调用 Server Action 获取预订列表 (从 Cookie/Server)
+    return getUserBookingsAction(userId);
   }
 
   async cancelBooking(bookingId: string): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    this.bookings = this.bookings.map(b => 
-      b.id === bookingId ? { ...b, status: 'cancelled' as const } : b
-    );
-    this.saveToStorage();
+    // 调用 Server Action 取消预订
+    return cancelBookingAction(bookingId);
   }
 
   private saveToStorage() {
+    // Reviews still use local storage for now
     if (typeof window !== 'undefined') {
-        localStorage.setItem('starstudy_bookings', JSON.stringify(this.bookings));
+        // localStorage.setItem('starstudy_bookings', JSON.stringify(this.bookings)); // Deprecated
     }
   }
 }

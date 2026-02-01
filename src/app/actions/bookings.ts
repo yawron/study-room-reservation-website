@@ -44,3 +44,24 @@ export async function submitBookingAction(payload: {
 
   return booking;
 }
+
+export async function getUserBookingsAction(userId: string): Promise<Booking[]> {
+  const jar = cookies();
+  const key = 'starstudy_bookings_server';
+  const existing = jar.get(key)?.value ?? '[]';
+  const list = JSON.parse(existing) as Booking[];
+  return list.filter(b => b.userId === userId);
+}
+
+export async function cancelBookingAction(bookingId: string): Promise<void> {
+  const jar = cookies();
+  const key = 'starstudy_bookings_server';
+  const existing = jar.get(key)?.value ?? '[]';
+  let list = JSON.parse(existing) as Booking[];
+  
+  list = list.map(b => 
+    b.id === bookingId ? { ...b, status: 'cancelled' as const } : b
+  );
+  
+  jar.set(key, JSON.stringify(list), { httpOnly: false, path: '/' });
+}

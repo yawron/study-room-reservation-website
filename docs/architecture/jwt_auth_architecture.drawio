@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="jwt-architecture-v4" name="JWT Authentication Architecture V4">
-        <mxGraphModel dx="2730" dy="560" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1600" math="0" shadow="0">
+        <mxGraphModel dx="3152" dy="636" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1600" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -19,7 +19,7 @@
                 <mxCell id="5" value="本地存储 (LocalStorage)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;strokeWidth=2;dashed=1;fontStyle=1;verticalAlign=top;spacingTop=10" parent="30" vertex="1">
                     <mxGeometry x="30" y="190" width="280" height="110" as="geometry"/>
                 </mxCell>
-                <mxCell id="6" value="用户快照 (User Snapshot)&#10;[仅用于 UI 展示]" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#d79b00;" parent="5" vertex="1">
+                <mxCell id="6" value="用户快照 (已移除)&#10;[完全依赖内存状态]" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#d79b00;" parent="5" vertex="1">
                     <mxGeometry y="40" width="280" height="55" as="geometry"/>
                 </mxCell>
                 <mxCell id="7" value="浏览器 Cookie" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;strokeWidth=2;fontStyle=1;verticalAlign=top;spacingTop=10" parent="30" vertex="1">

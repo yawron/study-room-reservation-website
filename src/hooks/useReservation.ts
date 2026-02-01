@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { api } from '../services/apiService';
 import { submitBookingAction } from '@/app/actions/bookings';
 import { Room } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -19,7 +18,9 @@ export const useReservation = (room: Room, onSuccess: () => void) => {
 
     setIsSubmitting(true);
     try {
-      const booking = await submitBookingAction({
+      // 构造预定数据并提交到 Server Action
+      // Server Action 会负责校验、计算价格并入库
+      await submitBookingAction({
         roomId: room.id,
         roomName: room.name,
         userId: user.id,
@@ -29,7 +30,9 @@ export const useReservation = (room: Room, onSuccess: () => void) => {
         pricePerHour: room.pricePerHour,
         imageUrl: room.imageUrl,
       });
-      await api.createBooking(booking);
+
+      // 预订成功后，无需再调用 api.createBooking
+      // 因为数据已经在 submitBookingAction 中处理并持久化了
 
       setStep(3); // Move to success step
       setTimeout(() => {

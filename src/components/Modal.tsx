@@ -20,6 +20,12 @@ interface ModalRootProps {
 
 // React Portal: 规避父容器布局限制
 const Root: React.FC<ModalRootProps> = ({ isOpen, onClose, children, className = '' }) => {
+  const [mounted, setMounted] = React.useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // 复用 useClickOutside Hook
   const contentRef = useClickOutside(onClose);
 
@@ -33,7 +39,7 @@ const Root: React.FC<ModalRootProps> = ({ isOpen, onClose, children, className =
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   return ReactDOM.createPortal(
     <ModalContext.Provider value={{ onClose }}>

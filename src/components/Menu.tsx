@@ -55,6 +55,12 @@ const List: React.FC<{ children: ReactNode; className?: string; align?: 'left' |
   className = '',
   align = 'right',
 }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const context = useContext(MenuContext);
   if (!context) throw new Error('Menu.List must be used within Menu.Root');
 
@@ -99,7 +105,7 @@ const List: React.FC<{ children: ReactNode; className?: string; align?: 'left' |
     };
   }, [context.isOpen, computePos, context.triggerRef, context]);
 
-  if (!context.isOpen) return null;
+  if (!context.isOpen || !mounted) return null;
 
   return ReactDOM.createPortal(
     <div

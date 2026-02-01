@@ -178,8 +178,6 @@ class RequestLayer {
     this.requestsQueue = [];
     clearAccessToken();
     if (typeof window !== 'undefined') {
-      // 清理其他可能的用户信息
-      localStorage.removeItem('starstudy_user');
       // 避免服务端执行
       window.location.href = this.config.loginUrl!;
     }
