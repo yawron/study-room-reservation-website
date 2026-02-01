@@ -55,11 +55,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({ room, isOpen, onClos
           {step === 1 && (
             <div className="space-y-6">
               <div className="flex items-start space-x-4">
-                <img src={room.imageUrl} alt={room.name} className="w-24 h-24 rounded-lg object-cover shadow-sm" />
+                <img src={room.imageUrl} alt={room.name} className="w-24 h-24 rounded-lg border-2 border-black shadow-neo-sm object-cover" />
                 <div>
-                  <h3 className="font-semibold text-brand-dark">{room.type}</h3>
-                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">{room.description}</p>
-                  <p className="text-brand-green font-bold mt-2">
+                  <h3 className="font-bold text-black text-lg">{room.type}</h3>
+                  <p className="text-sm text-gray-600 font-bold mt-1 line-clamp-2">{room.description}</p>
+                  <p className="text-primary font-black mt-2 text-lg">
                     {room.pricePerHour === 0 ? '免费' : `¥${room.pricePerHour} / 小时`}
                   </p>
                 </div>
@@ -75,9 +75,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({ room, isOpen, onClos
                 />
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">开始时间</label>
+                    <label className="block text-sm font-bold text-black mb-1">开始时间</label>
                     <select 
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
+                      className="w-full px-4 py-2 border-2 border-black rounded-lg focus:shadow-neo outline-none bg-white transition-all"
                       value={startTime}
                       onChange={(e) => setStartTime(e.target.value)}
                     >
@@ -88,9 +88,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({ room, isOpen, onClos
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">使用时长</label>
+                    <label className="block text-sm font-bold text-black mb-1">使用时长</label>
                     <select 
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-green outline-none"
+                      className="w-full px-4 py-2 border-2 border-black rounded-lg focus:shadow-neo outline-none bg-white transition-all"
                       value={duration}
                       onChange={(e) => setDuration(Number(e.target.value))}
                     >

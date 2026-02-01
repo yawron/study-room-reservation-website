@@ -43,10 +43,10 @@ const Root: React.FC<ModalRootProps> = ({ isOpen, onClose, children, className =
 
   return ReactDOM.createPortal(
     <ModalContext.Provider value={{ onClose }}>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200">
         <div 
           ref={contentRef} 
-          className={`bg-white rounded-2xl shadow-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 ${className || 'max-w-lg'}`}
+          className={`bg-white rounded-lg border-2 border-black shadow-neo w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 ${className || 'max-w-lg'}`}
           role="dialog"
           aria-modal="true"
         >
@@ -70,12 +70,12 @@ const Header: React.FC<ModalHeaderProps> = ({ children, className = '', showClos
   if (!context) throw new Error('Modal.Header must be used within Modal.Root');
   
   return (
-    <div className={`px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-brand-green ${className}`}>
-      <h2 className="text-lg font-bold text-white">{children}</h2>
+    <div className={`px-6 py-4 border-b-2 border-black flex justify-between items-center bg-primary ${className}`}>
+      <h2 className="text-lg font-black text-white">{children}</h2>
       {showClose && (
         <button 
           onClick={context.onClose} 
-          className="text-white/80 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 rounded-full p-1"
+          className="text-white hover:text-black hover:bg-white transition-all border-2 border-transparent hover:border-black hover:shadow-neo-sm rounded-lg p-1"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
@@ -92,7 +92,7 @@ const Body: React.FC<{ children: ReactNode; className?: string }> = ({ children,
 );
 
 const Footer: React.FC<{ children: ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <div className={`px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end space-x-3 ${className}`}>
+  <div className={`px-6 py-4 bg-background border-t-2 border-black flex items-center justify-end space-x-3 ${className}`}>
     {children}
   </div>
 );

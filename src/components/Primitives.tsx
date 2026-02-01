@@ -16,12 +16,12 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyles = "inline-flex items-center justify-center font-medium transition-all duration-200 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+  const baseStyles = "inline-flex items-center justify-center font-bold transition-all duration-200 rounded-lg border-2 border-black focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed active:shadow-none active:translate-x-[2px] active:translate-y-[2px]";
 
   const variants = {
-    primary: "bg-brand-green text-white hover:bg-brand-dark focus:ring-brand-green shadow-md hover:shadow-lg",
-    outline: "border-2 border-brand-green text-brand-green hover:bg-brand-accent/30 focus:ring-brand-green",
-    ghost: "text-brand-dark hover:bg-brand-accent/20 hover:text-brand-green",
+    primary: "bg-primary text-white shadow-neo hover:bg-primary/90",
+    outline: "bg-white text-black shadow-neo hover:bg-accent",
+    ghost: "bg-transparent border-transparent text-black hover:bg-accent hover:border-black",
   };
 
   const sizes = {
@@ -42,18 +42,20 @@ export const Button: React.FC<ButtonProps> = ({
   );
 };
 
-export const Badge: React.FC<{ children: React.ReactNode; variant?: 'success' | 'warning' | 'neutral' }> = ({
+export const Badge: React.FC<{ children: React.ReactNode; variant?: 'success' | 'warning' | 'neutral' | 'danger'; className?: string }> = ({
   children,
-  variant = 'neutral'
+  variant = 'neutral',
+  className = ''
 }) => {
   const styles = {
-    success: "bg-green-100 text-green-800 border-green-200",
-    warning: "bg-amber-100 text-amber-800 border-amber-200",
-    neutral: "bg-gray-100 text-gray-800 border-gray-200",
+    success: "bg-brand-green text-black",
+    warning: "bg-accent text-black",
+    neutral: "bg-muted text-black",
+    danger: "bg-[#FF4444] text-white",
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[variant]}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold border-2 border-black shadow-neo-sm ${styles[variant]} ${className}`}>
       {children}
     </span>
   );
@@ -66,11 +68,11 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const Input: React.FC<InputProps> = ({ label, error, className = '', ...props }) => (
   <div className="w-full">
-    {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
+    {label && <label className="block text-sm font-bold text-black mb-1">{label}</label>}
     <input
-      className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all ${error ? 'border-red-500' : ''} ${className}`}
+      className={`w-full px-4 py-2 bg-white border-2 border-black rounded-lg shadow-neo focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] outline-none transition-all placeholder:text-gray-500 ${error ? 'bg-secondary/20' : ''} ${className}`}
       {...props}
     />
-    {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+    {error && <p className="mt-1 text-xs font-bold text-destructive">{error}</p>}
   </div>
 );

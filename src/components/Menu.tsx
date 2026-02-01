@@ -111,7 +111,7 @@ const List: React.FC<{ children: ReactNode; className?: string; align?: 'left' |
     <div
       ref={dropdownRef}
       style={{ position: 'fixed', top: pos?.top ?? 0, left: pos?.left ?? 0, zIndex: 50 }}
-      className={`w-56 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none animate-in fade-in zoom-in-95 duration-200 ${className}`}
+      className={`w-56 rounded-lg shadow-neo bg-white border-2 border-black focus:outline-none animate-in fade-in zoom-in-95 duration-200 ${className}`}
     >
       <div className="py-1" role="none">
         {children}
@@ -145,8 +145,8 @@ const Item: React.FC<MenuItemProps> = ({
   };
 
   const variantStyles = variant === 'danger' 
-    ? 'text-red-600 hover:bg-red-50' 
-    : 'text-gray-700 hover:bg-gray-50 hover:text-brand-green';
+    ? 'text-destructive hover:bg-destructive/10 font-bold' 
+    : 'text-black hover:bg-accent font-bold';
 
   return (
     <div
@@ -154,13 +154,13 @@ const Item: React.FC<MenuItemProps> = ({
       className={`group flex items-center px-4 py-3 text-sm cursor-pointer transition-colors ${variantStyles} ${className}`}
       role="menuitem"
     >
-      {icon && <span className="mr-3 opacity-70 group-hover:opacity-100 transition-opacity">{icon}</span>}
+      {icon && <span className="mr-3 opacity-100 group-hover:scale-110 transition-transform">{icon}</span>}
       {children}
     </div>
   );
 };
 
-const Divider: React.FC = () => <div className="h-px bg-gray-100 my-1" />;
+const Divider: React.FC = () => <div className="h-[2px] bg-black my-1" />;
 
 export const Menu = {
   Root,

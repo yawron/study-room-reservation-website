@@ -3,149 +3,139 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/Primitives';
-import { Wifi, Coffee, Users, Search, ArrowRight } from 'lucide-react';
+import { Wifi, Coffee, Users, ArrowRight, Star, Monitor, Zap } from 'lucide-react';
 import { Room, RoomType } from '@/types';
 
-export default function HomePageClient({ initialRooms }: { initialRooms: Room[] }) {
+export default function HomePageClient() {
   const router = useRouter();
-  const [rooms, setRooms] = useState<Room[]>(initialRooms);
-  const [filter, setFilter] = useState<string>('全部');
 
-  useEffect(() => {
-    setRooms(initialRooms);
-  }, [initialRooms]);
-
-  const filters = useMemo(() => ['全部', ...Object.values(RoomType)], []);
-
-  const filteredRooms = useMemo(() => {
-    const category = filter === '全部' ? 'All' : filter;
-    return category === 'All' ? rooms : rooms.filter((r) => r.type === category);
-  }, [rooms, filter]);
+  const categories = [
+    {
+      type: RoomType.QUIET_POD,
+      title: '沉浸式静音仓',
+      description: '极致静谧，配备人体工学座椅与隔音设施，专为深度学习与专注工作打造。',
+      icon: <Zap className="w-8 h-8 text-black" />,
+      color: 'bg-brand-green/20'
+    },
+    {
+      type: RoomType.COLLAB_SUITE,
+      title: '灵感协作室',
+      description: '宽敞空间支持多人研讨，配备白板与投屏设备，激发团队灵感碰撞。',
+      icon: <Users className="w-8 h-8 text-black" />,
+      color: 'bg-secondary/20'
+    },
+    {
+      type: RoomType.WINDOW_SEAT,
+      title: '景观开放座',
+      description: '通透落地窗景，享受自然光线与开阔视野，让学习时光更轻松惬意。',
+      icon: <Coffee className="w-8 h-8 text-black" />,
+      color: 'bg-brand-cream'
+    }
+  ];
 
   return (
     <div className="flex flex-col">
-      <section className="relative bg-brand-dark overflow-hidden min-h-[360px] md:min-h-[400px] flex items-center">
-        <div className="absolute inset-0 opacity-40">
+      <section className="relative bg-brand-cream border-b-4 border-black overflow-hidden min-h-[400px] md:min-h-[500px] flex items-center">
+        <div className="absolute inset-0 opacity-100">
           <img
-            src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=2070&auto=format&fit=crop"
-            alt="Background"
-            className="w-full h-full object-cover"
+            src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1974&auto=format&fit=crop"
+            alt="Anime Style Study Room"
+            className="w-full h-full object-cover opacity-90"
           />
+          <div className="absolute inset-0 bg-brand-green/20 mix-blend-overlay"></div>
         </div>
-        <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-24 flex flex-col items-center text-center">
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-tight mt-6 mb-6">
-            预订您的专属 <br className="md:hidden" /> <span className="text-brand-accent">学习空间</span>
-          </h1>
-          <p className="text-gray-200 max-w-lg mb-8 text-base md:text-lg px-4 line-clamp-2 md:line-clamp-none">
-            像星巴克一样舒适，专为高效学习打造。
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4">
-            <Button size="lg" className="w-full sm:w-auto text-lg shadow-xl shadow-brand-green/30" onClick={() => router.push('/rooms')}>
-              开始预约
-            </Button>
+        <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-24 flex flex-col items-center text-center z-10">
+          <div className="bg-white border-4 border-black shadow-neo p-8 md:p-12 rotate-1 max-w-4xl mx-auto transform transition-transform hover:rotate-0 duration-300">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-black tracking-tight leading-none mt-2 mb-6 uppercase">
+              预订您的专属 <br className="md:hidden" /> <span className="text-brand-green bg-black px-2">学习空间</span>
+            </h1>
+            <p className="text-black font-bold text-lg md:text-2xl max-w-2xl mx-auto mb-8 line-clamp-2 md:line-clamp-none border-t-2 border-black pt-6">
+              像星巴克一样舒适，专为高效学习打造。
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
+              <Button size="lg" className="w-full sm:w-auto text-xl px-8 py-6 border-2 border-black shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all font-black bg-brand-green text-white hover:bg-brand-green/90" onClick={() => router.push('/rooms')}>
+                开始预约 <ArrowRight className="ml-2 w-6 h-6" />
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="flex-grow bg-white min-h-screen py-4 md:py-12">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="sticky top-[64px] md:top-20 z-30 bg-white/95 backdrop-blur-sm py-2 md:py-4 mb-4 border-b border-gray-100 -mx-3 px-3 md:mx-0 md:px-0 shadow-sm md:shadow-none flex items-center gap-3">
-            <div className="flex items-center text-brand-dark font-bold text-base flex-shrink-0">
-              <div className="bg-brand-green/10 p-2 rounded-lg">
-                <Search className="w-4 h-4 md:w-5 md:h-5 text-brand-green" />
-              </div>
-              <span className="hidden md:inline ml-2">快速选座</span>
-            </div>
-
-            <div className="h-6 w-px bg-gray-200 md:hidden flex-shrink-0"></div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex space-x-2 overflow-x-auto scrollbar-hide py-1">
-                {filters.map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setFilter(f)}
-                    className={`px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 ${
-                      filter === f ? 'bg-brand-green text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
-            </div>
+      <section className="flex-grow bg-brand-cream min-h-screen py-8 md:py-16 border-t-4 border-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 md:mb-12 text-center">
+             <h2 className="text-3xl md:text-5xl font-black text-black uppercase tracking-tight mb-4">
+               <span className="bg-brand-green text-white px-2 mr-2">空间</span>
+               类型导览
+             </h2>
+             <p className="text-lg md:text-xl font-bold text-gray-600 max-w-2xl mx-auto">
+               无论您需要独自专注还是团队协作，我们都有适合您的完美空间。
+             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8 pb-10">
-            {filteredRooms.map((room) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 pb-10">
+            {categories.map((category, index) => (
               <div
-                key={room.id}
-                onClick={() => router.push(`/rooms/${room.id}`)}
-                className="bg-white rounded-xl md:rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full border border-gray-100 cursor-pointer"
+                key={index}
+                className={`bg-white border-4 border-black shadow-neo p-8 flex flex-col items-center text-center hover:-translate-y-2 hover:shadow-neo-lg transition-all duration-300 cursor-pointer group`}
+                onClick={() => router.push(`/rooms?type=${encodeURIComponent(category.type)}`)}
               >
-                <div className="relative h-28 xs:h-36 md:h-56 overflow-hidden bg-gray-100">
-                  <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
-
-                  <div className="absolute bottom-2 left-2 md:bottom-3 md:left-3 max-w-[85%]">
-                    <span className="bg-black/60 backdrop-blur-md text-white px-1.5 py-0.5 md:px-2.5 md:py-1 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider truncate block">
-                      {room.type}
-                    </span>
-                  </div>
+                <div className={`p-6 border-4 border-black shadow-neo-sm mb-6 rounded-full ${category.color} group-hover:scale-110 transition-transform duration-300`}>
+                   {category.icon}
                 </div>
-
-                <div className="p-2.5 md:p-5 flex flex-col flex-grow">
-                  <div className="flex justify-between items-start mb-1 md:mb-2">
-                    <h3 className="text-sm md:text-lg font-bold text-brand-dark group-hover:text-brand-green transition-colors line-clamp-1">{room.name}</h3>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 md:space-x-4 text-[10px] md:text-sm text-gray-500 mb-2 md:mb-3">
-                    <div className="flex items-center">
-                      <Users className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                      {room.capacity}人
-                    </div>
-                    <div className="flex items-center">
-                      <Wifi className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                      WiFi
-                    </div>
-                  </div>
-
-                  <p className="hidden md:block text-gray-600 text-sm line-clamp-2 mb-4 flex-grow">{room.description}</p>
-
-                  <div className="pt-2 md:pt-4 border-t border-gray-100 flex items-end justify-between mt-auto">
-                    <div>
-                      <span className="text-sm md:text-lg font-bold text-brand-green">
-                        {room.pricePerHour === 0 ? '免费' : `¥${room.pricePerHour}`}
-                      </span>
-                      <span className="text-[10px] md:text-xs text-gray-400">/h</span>
-                    </div>
-                    <Button variant="ghost" size="sm" className="hidden md:flex group-hover:bg-brand-accent/20 px-2 md:px-4 text-xs md:text-sm">
-                      详情 <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1" />
-                    </Button>
-                  </div>
-                </div>
+                <h3 className="text-2xl font-black text-black mb-4 uppercase">{category.title}</h3>
+                <p className="text-gray-700 font-bold mb-8 leading-relaxed flex-grow border-t-2 border-black pt-4 w-full">
+                  {category.description}
+                </p>
+                <Button 
+                   className="w-full bg-black text-white border-2 border-transparent hover:bg-brand-green hover:border-black hover:text-white font-black shadow-none"
+                >
+                   浏览房型 <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
               </div>
             ))}
           </div>
+
+          <div className="text-center pt-8 border-t-4 border-black border-dashed">
+             <p className="text-xl font-black text-black mb-6">
+               还有更多选择等待您的探索...
+             </p>
+             <Button 
+                onClick={() => router.push('/rooms')}
+                size="lg"
+                className="bg-white text-black border-2 border-black shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all font-black px-10"
+             >
+                查看完整列表 <ArrowRight className="ml-2 w-5 h-5" />
+             </Button>
+          </div>
         </div>
       </section>
 
-      <section className="py-8 md:py-16 bg-brand-cream border-t border-gray-200">
+      <section className="py-16 md:py-24 bg-white border-t-4 border-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-3 gap-3 md:gap-10">
-            <div className="flex flex-col items-center text-center p-2">
-              <div className="bg-white p-2 md:p-4 rounded-full mb-2 md:mb-4 shadow-sm text-brand-green">
-                <Wifi className="w-5 h-5 md:w-8 md:h-8" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            <div className="flex flex-col items-center text-center p-6 border-4 border-black shadow-neo bg-brand-green/20 hover:bg-brand-green/30 transition-colors">
+              <div className="bg-white p-4 border-4 border-black shadow-neo-sm mb-6 rounded-none rotate-3">
+                <Wifi className="w-10 h-10 text-black" />
               </div>
-              <h3 className="text-xs md:text-lg font-bold text-brand-dark mb-1">极速网络</h3>
-              <p className="hidden md:block text-gray-600 text-sm">千兆网络接入，确保查阅资料与视频课程流畅无卡顿。</p>
+              <h3 className="text-2xl font-black text-black mb-3 uppercase">极速网络</h3>
+              <p className="text-black font-medium border-t-2 border-black pt-4 w-full">千兆网络接入，确保查阅资料与视频课程流畅无卡顿。</p>
             </div>
 
-            <div className="flex flex-col items-center text-center p-2">
-              <div className="bg-white p-2 md:p-4 rounded-full mb-2 md:mb-4 shadow-sm text-brand-green">
-                <Coffee className="w-5 h-5 md:w-8 md:h-8" />
+            <div className="flex flex-col items-center text-center p-6 border-4 border-black shadow-neo bg-secondary/20 hover:bg-secondary/30 transition-colors">
+              <div className="bg-white p-4 border-4 border-black shadow-neo-sm mb-6 rounded-none -rotate-2">
+                <Coffee className="w-10 h-10 text-black" />
               </div>
-              <h3 className="text-xs md:text-lg font-bold text-brand-dark mb-1">舒适氛围</h3>
-              <p className="hidden md:block text-gray-600 text-sm">精心设计的灯光与人体工学座椅，助您快速进入心流状态。</p>
+              <h3 className="text-2xl font-black text-black mb-3 uppercase">舒适氛围</h3>
+              <p className="text-black font-medium border-t-2 border-black pt-4 w-full">精心设计的灯光与人体工学座椅，助您快速进入心流状态。</p>
+            </div>
+
+             <div className="flex flex-col items-center text-center p-6 border-4 border-black shadow-neo bg-brand-cream hover:bg-brand-cream/80 transition-colors">
+              <div className="bg-white p-4 border-4 border-black shadow-neo-sm mb-6 rounded-none rotate-1">
+                <Users className="w-10 h-10 text-black" />
+              </div>
+              <h3 className="text-2xl font-black text-black mb-3 uppercase">社群共进</h3>
+              <p className="text-black font-medium border-t-2 border-black pt-4 w-full">与志同道合的伙伴一起学习，互相激励，共同进步。</p>
             </div>
           </div>
         </div>

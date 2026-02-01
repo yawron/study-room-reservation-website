@@ -21,25 +21,36 @@ export const Navbar: React.FC = () => {
     router.push('/');
   };
 
-  const isActiveLink = (path: string) => pathname === path;
-  const getLinkClass = (path: string) => `text-sm font-semibold tracking-wide hover:text-brand-green transition-colors ${isActiveLink(path) ? 'text-brand-green' : 'text-gray-600'}`;
-  const getMobileLinkClass = (path: string) => `block px-4 py-3 text-base font-medium rounded-xl transition-colors ${isActiveLink(path) ? 'bg-brand-green/10 text-brand-green' : 'text-gray-700 hover:bg-gray-50'}`;
+  const isActiveLink = (path: string) => {
+    if (path === '/') return pathname === '/';
+    return pathname.startsWith(path);
+  };
+
+  const getLinkClass = (path: string) => {
+    const base = "text-sm font-bold px-4 py-2 rounded-lg border-2 transition-all duration-200";
+    if (isActiveLink(path)) {
+      return `${base} bg-brand-green text-white border-black shadow-neo-sm transform -translate-y-[1px]`;
+    }
+    return `${base} border-transparent text-black hover:bg-brand-cream hover:border-black hover:shadow-neo-sm hover:-translate-y-[1px]`;
+  };
+
+  const getMobileLinkClass = (path: string) => `block px-4 py-3 text-base font-medium rounded-xl transition-colors ${isActiveLink(path) ? 'bg-brand-green/10 text-brand-green border-2 border-black shadow-neo-sm' : 'text-gray-700 hover:bg-gray-50'}`;
 
   return (
     <>
-      <nav className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-gray-100 transition-all duration-300">
+      <nav className="sticky top-0 z-50 w-full bg-background border-b-2 border-black transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 md:h-20 items-center">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center cursor-pointer active:scale-95 transition-transform" onClick={() => router.push('/')}>
-              <div className="bg-brand-green p-1.5 md:p-2 rounded-full mr-2">
+              <div className="bg-primary p-1.5 md:p-2 border-2 border-black shadow-neo-sm mr-2 rounded-lg">
                 <Coffee className="h-5 w-5 md:h-6 md:w-6 text-white" />
               </div>
-              <span className="font-bold text-lg md:text-xl tracking-tight text-brand-dark">STARSTUDY</span>
+              <span className="font-extrabold text-lg md:text-xl tracking-tight text-black">STARSTUDY</span>
             </div>
 
             {/* 桌面端菜单 */}
-            <div className="hidden md:flex space-x-8 items-center">
+            <div className="hidden md:flex space-x-2 items-center">
               <Link href="/" className={getLinkClass('/')}>首页</Link>
               <Link href="/rooms" className={getLinkClass('/rooms')}>所有房型</Link>
               {isAuthenticated && (
@@ -52,23 +63,23 @@ export const Navbar: React.FC = () => {
               {isAuthenticated ? (
                 <Menu.Root>
                   <Menu.Trigger>
-                    <div className="flex items-center space-x-2 text-sm font-medium text-brand-dark hover:bg-gray-100 px-3 py-2 rounded-full transition-colors select-none">
+                    <div className="flex items-center space-x-2 text-sm font-bold text-black hover:bg-accent border-2 border-transparent hover:border-black px-3 py-2 rounded-lg transition-all select-none">
                        {user?.avatar ? (
-                         <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full border border-gray-200" />
+                         <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full border-2 border-black" />
                        ) : (
-                         <div className="w-8 h-8 rounded-full bg-brand-green/10 flex items-center justify-center">
-                           <User className="w-4 h-4 text-brand-green" />
+                         <div className="w-8 h-8 rounded-lg border-2 border-black bg-primary flex items-center justify-center">
+                           <User className="w-4 h-4 text-white" />
                          </div>
                        )}
                        <span>{user?.name}</span>
-                       <ChevronDown className="w-4 h-4 text-gray-400" />
+                       <ChevronDown className="w-4 h-4 text-black" />
                     </div>
                   </Menu.Trigger>
 
                   <Menu.List>
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-sm font-bold text-gray-900">{user?.name}</p>
-                      <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                    <div className="px-4 py-3 border-b-2 border-black bg-accent/20">
+                      <p className="text-sm font-black text-black">{user?.name}</p>
+                      <p className="text-xs font-bold text-gray-600 truncate">{user?.email}</p>
                     </div>
                     <Menu.Item icon={<LayoutDashboard className="w-4 h-4"/>} onClick={() => router.push('/dashboard')}>
                        我的仪表盘
@@ -83,7 +94,7 @@ export const Navbar: React.FC = () => {
                   </Menu.List>
                 </Menu.Root>
               ) : (
-                <div className="flex space-x-2">
+                <div className="flex space-x-4">
                   <Button variant="outline" size="sm" onClick={() => router.push('/login')}>登录</Button>
                   <Button size="sm" onClick={() => router.push('/login')}>注册</Button>
                 </div>
@@ -94,7 +105,7 @@ export const Navbar: React.FC = () => {
             <div className="md:hidden flex items-center">
               <button 
                 onClick={() => setIsOpen(!isOpen)} 
-                className="text-brand-dark p-2 hover:bg-gray-100 rounded-full transition-colors focus:outline-none"
+                className="text-black p-2 hover:bg-accent border-2 border-transparent hover:border-black hover:shadow-neo-sm rounded-lg transition-all focus:outline-none"
               >
                 {isOpen ? <X className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
               </button>

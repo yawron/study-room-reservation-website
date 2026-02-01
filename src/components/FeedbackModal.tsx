@@ -78,25 +78,25 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ room, isOpen, onCl
       <Modal.Body>
         {isSuccess ? (
             <div className="flex flex-col items-center justify-center py-8 text-center animate-in zoom-in duration-300">
-                <div className="bg-green-100 p-4 rounded-full mb-4">
-                    <ThumbsUp className="w-8 h-8 text-green-600" />
+                <div className="bg-primary p-4 rounded-lg border-2 border-black shadow-neo mb-4">
+                    <ThumbsUp className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">感谢您的评价!</h3>
-                <p className="text-gray-500 mt-2">您的反馈将帮助我们和其他同学。</p>
+                <h3 className="text-xl font-black text-black">感谢您的评价!</h3>
+                <p className="text-gray-600 font-bold mt-2">您的反馈将帮助我们和其他同学。</p>
             </div>
         ) : (
             <div className="space-y-6">
-                <div className="bg-gray-50 p-3 rounded-lg flex items-start space-x-3">
-                    <img src={room.imageUrl} alt={room.name} className="w-12 h-12 rounded-md object-cover flex-shrink-0" />
+                <div className="bg-accent/20 p-3 rounded-lg border-2 border-black flex items-start space-x-3">
+                    <img src={room.imageUrl} alt={room.name} className="w-12 h-12 rounded-lg border-2 border-black shadow-neo-sm object-cover flex-shrink-0" />
                     <div>
-                        <p className="font-medium text-brand-dark text-sm">{room.name}</p>
-                        <p className="text-xs text-gray-500">{room.type}</p>
+                        <p className="font-bold text-black text-sm">{room.name}</p>
+                        <p className="text-xs font-bold text-gray-600">{room.type}</p>
                     </div>
                 </div>
 
                 {/* 星级评分选择 */}
                 <div className="flex flex-col items-center space-y-2 py-2">
-                    <label className="text-sm font-medium text-gray-700">总体评分</label>
+                    <label className="text-sm font-bold text-black">总体评分</label>
                     <div className="flex space-x-2">
                         {[1, 2, 3, 4, 5].map((star) => (
                             <button

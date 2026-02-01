@@ -56,7 +56,7 @@ const Overlay: React.FC = () => {
 
   return (
     <div 
-      className="absolute inset-0 bg-black/20 backdrop-blur-sm animate-in fade-in duration-300"
+      className="absolute inset-0 bg-black/40 animate-in fade-in duration-300"
       onClick={context.onClose}
     />
   );
@@ -78,15 +78,15 @@ const Content: React.FC<DrawerContentProps> = ({ children, className = '', side 
 
   // 根据方向定义动画和定位
   const sideStyles = {
-    top: 'top-0 left-0 right-0 border-b rounded-b-2xl animate-in slide-in-from-top duration-300',
-    left: 'top-0 bottom-0 left-0 h-full border-r animate-in slide-in-from-left duration-300',
-    right: 'top-0 bottom-0 right-0 h-full border-l animate-in slide-in-from-right duration-300',
+    top: 'top-0 left-0 right-0 border-b-2 border-black rounded-b-lg shadow-neo animate-in slide-in-from-top duration-300',
+    left: 'top-0 bottom-0 left-0 h-full border-r-2 border-black shadow-neo animate-in slide-in-from-left duration-300',
+    right: 'top-0 bottom-0 right-0 h-full border-l-2 border-black shadow-neo-lg animate-in slide-in-from-right duration-300',
   };
 
   return (
     <div 
       ref={ref}
-      className={`relative bg-white shadow-xl overflow-y-auto ${sideStyles[side]} ${className}`}
+      className={`relative bg-background overflow-y-auto ${sideStyles[side]} ${className}`}
       style={{ maxHeight: side === 'top' ? '80vh' : '100vh' }}
     >
       {children}

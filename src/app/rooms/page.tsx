@@ -31,10 +31,17 @@ async function getRooms() {
 
 function SkeletonGrid() {
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 md:py-12 w-full">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8">
-        {[1, 2, 3, 4].map((n) => (
-          <div key={n} className="h-48 md:h-80 bg-gray-200 rounded-xl md:rounded-2xl animate-pulse"></div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        {[1, 2, 3, 4, 5, 6].map((n) => (
+          <div key={n} className="h-[400px] bg-white rounded-lg border-2 border-black shadow-neo overflow-hidden flex flex-col">
+             <div className="h-56 bg-gray-200 border-b-2 border-black animate-pulse"></div>
+             <div className="p-5 flex-1 flex flex-col gap-4">
+                <div className="h-8 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2"></div>
+                <div className="h-20 bg-gray-200 rounded animate-pulse w-full mt-auto"></div>
+             </div>
+          </div>
         ))}
       </div>
     </div>
