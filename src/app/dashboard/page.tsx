@@ -9,12 +9,14 @@ import { Calendar, Clock, MapPin } from 'lucide-react';
 import { Button, Badge } from '@/components/Primitives';
 
 export default function DashboardPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!isAuthenticated) {
       router.push('/login');
       return;
@@ -33,7 +35,7 @@ export default function DashboardPage() {
       }
     };
     fetchBookings();
-  }, [user, isAuthenticated, router]);
+  }, [user, isAuthenticated, authLoading, router]);
 
   const handleCancel = async (id: string) => {
     if(window.confirm('您确定要取消此预订吗？')) {
