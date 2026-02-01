@@ -169,22 +169,64 @@ export default function RoomDetailPage() {
                         </div>
                     </div>
 
-                    {reviews.length > 0 && (
-                        <div className="pt-2">
-                            <h3 className="text-xs font-black text-black mb-2 uppercase flex items-center text-gray-400">
+                    <div className="pt-2">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-xs font-black text-black uppercase flex items-center text-gray-400">
                               <span className="w-1.5 h-3 bg-brand-green mr-2 border border-black"></span>
-                              最新评价
+                              用户评价 ({reviews.length})
                             </h3>
-                            <div className="bg-brand-cream/20 border-2 border-black p-3 rounded-lg relative overflow-hidden group hover:bg-brand-cream/40 transition-colors cursor-pointer" onClick={handleFeedbackClick}>
-                                <div className="text-xs text-gray-600 italic pl-2 mb-1 truncate">
-                                    "{reviews[0].comment}"
-                                </div>
-                                <div className="flex items-center justify-end">
-                                    <span className="text-[10px] font-bold text-gray-400">—— {reviews[0].userName}</span>
-                                </div>
-                            </div>
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={handleFeedbackClick}
+                                className="text-[10px] h-6 px-2 text-brand-green hover:bg-brand-green/10"
+                            >
+                                <MessageSquare className="w-3 h-3 mr-1" />
+                                写评价
+                            </Button>
                         </div>
-                    )}
+                        
+                        {reviews.length === 0 ? (
+                            <div className="text-center py-4 bg-gray-50 border-2 border-dashed border-gray-200 rounded-lg">
+                                <p className="text-xs text-gray-500 mb-2">暂无评价，快来抢沙发吧！</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {reviews.map((review) => (
+                                    <div key={review.id} className="bg-white border-2 border-black p-3 shadow-neo-sm rounded-md">
+                                        <div className="flex items-start justify-between mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-6 h-6 rounded-full bg-gray-200 border border-black overflow-hidden shrink-0">
+                                                    {review.userAvatar ? (
+                                                        <img src={review.userAvatar} alt={review.userName} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-gray-500">
+                                                            {review.userName.charAt(0)}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs font-bold text-black">{review.userName}</div>
+                                                    <div className="text-[10px] text-gray-400">{new Date(review.createdAt).toLocaleDateString()}</div>
+                                                </div>
+                                            </div>
+                                            <div className="flex text-brand-yellow">
+                                                {Array.from({ length: 5 }).map((_, i) => (
+                                                    <Star 
+                                                        key={i} 
+                                                        className={`w-3 h-3 ${i < review.rating ? 'fill-current' : 'text-gray-200'}`} 
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-gray-600 leading-relaxed break-words">
+                                            {review.comment}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
