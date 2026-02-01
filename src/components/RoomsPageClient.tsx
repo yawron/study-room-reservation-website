@@ -186,17 +186,6 @@ export default function RoomsPageClient({ initialRooms }: { initialRooms: Room[]
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedFeedbackRoom(room);
-                        }}
-                        className="p-2 border-2 border-black rounded-md hover:bg-brand-accent text-black transition-all shadow-[2px_2px_0_0_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-                        title="提交反馈"
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                      </button>
-
                       <Button variant="primary" size="sm" className="hidden md:flex text-sm">
                         详情 <ArrowRight className="w-4 h-4 ml-1" />
                       </Button>
