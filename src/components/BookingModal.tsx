@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { Calendar, Clock, CreditCard, CheckCircle2 } from 'lucide-react';
 import { Room } from '../types';
-import { Button, Input } from './UI';
+import { Button, Input } from './Primitives';
 import { useRouter } from 'next/navigation';
 import { useReservation } from '../hooks/useReservation';
 import { Modal } from './Modal'; 

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { api } from '@/services/apiService';
 import { Room, Review } from '@/types';
-import { Button, Badge } from '@/components/UI';
+import { Button, Badge } from '@/components/Primitives';
 import { Wifi, Users, ArrowLeft, CheckCircle2, Zap, Monitor, Star, MessageSquare, ThumbsUp } from 'lucide-react';
 import { BookingModal } from '@/components/BookingModal';
 import { FeedbackModal } from '@/components/FeedbackModal';

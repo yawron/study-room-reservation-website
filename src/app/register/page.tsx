@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button, Input } from '@/components/UI';
+import { Button, Input } from '@/components/Primitives';
 import { AlertCircle, ArrowRight, User as UserIcon } from 'lucide-react';
 
 export default function RegisterPage() {

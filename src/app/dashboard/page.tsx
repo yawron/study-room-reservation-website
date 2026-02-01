@@ -6,7 +6,7 @@ import { api } from '@/services/apiService';
 import { Booking } from '@/types';
 import { useRouter } from 'next/navigation';
 import { Calendar, Clock, MapPin } from 'lucide-react';
-import { Button, Badge } from '@/components/UI';
+import { Button, Badge } from '@/components/Primitives';
 
 export default function DashboardPage() {
   const { user, isAuthenticated } = useAuth();
