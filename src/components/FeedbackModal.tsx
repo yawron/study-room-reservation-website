@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Modal } from './Modal';
-import { Button } from './UI';
+import { Button } from './Primitives';
 import { Room } from '../types';
 import { Star, ThumbsUp } from 'lucide-react';
 import { api } from '../services/apiService';

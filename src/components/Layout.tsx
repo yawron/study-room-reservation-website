@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Coffee, Menu as MenuIcon, X, LogOut, User, LayoutDashboard, ChevronDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { Button } from './UI';
+import { Button } from './Primitives';
 import { Drawer } from './Drawer'; 
 import { Menu } from './Menu'; 
 

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Room, RoomType } from '@/types';
-import { Badge, Button } from '@/components/UI';
+import { Badge, Button } from '@/components/Primitives';
 import { ChevronDown, Filter, MessageSquare, ArrowRight, Star, Users, Wifi } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { FeedbackModal } from '@/components/FeedbackModal';
@@ -10,7 +10,6 @@ import { FeedbackModal } from '@/components/FeedbackModal';
 export default function RoomsPageClient({ initialRooms }: { initialRooms: Room[] }) {
   const [rooms, setRooms] = useState<Room[]>(initialRooms);
   const [filteredRooms, setFilteredRooms] = useState<Room[]>(initialRooms);
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const [typeFilter, setTypeFilter] = useState<string>('全部');
@@ -18,7 +17,6 @@ export default function RoomsPageClient({ initialRooms }: { initialRooms: Room[]
   const [selectedFeedbackRoom, setSelectedFeedbackRoom] = useState<Room | null>(null);
 
   useEffect(() => {
-    setLoading(false);
     setRooms(initialRooms);
   }, [initialRooms]);
 
@@ -100,13 +98,7 @@ export default function RoomsPageClient({ initialRooms }: { initialRooms: Room[]
           </div>
         </div>
 
-        {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8">
-            {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="h-48 md:h-80 bg-gray-200 rounded-xl md:rounded-2xl animate-pulse"></div>
-            ))}
-          </div>
-        ) : filteredRooms.length === 0 ? (
+        {filteredRooms.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-gray-500 text-lg">没有找到符合条件的座位。</p>
             <Button

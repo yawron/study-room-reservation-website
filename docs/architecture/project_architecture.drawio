@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="Electron" modified="2024-02-01T00:00:00.000Z" agent="Trae" version="21.0.0" type="device">
+  <diagram id="starstudy-arch" name="StarStudy Architecture">
+    <mxGraphModel dx="1420" dy="860" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Header -->
+        <mxCell id="title" value="StarStudy 架构概览" style="text;html=1;align=center;verticalAlign=middle;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="600" y="20" width="400" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Layer 1: Client & Entry -->
+        <mxCell id="client" value="客户端 (浏览器)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Layer 2: Next.js App Router Structure -->
+        <mxCell id="app_router" value="应用路由 (App Router Next.js)" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="320" y="100" width="280" height="380" as="geometry"/>
+        </mxCell>
+        <mxCell id="app_layout" value="根布局 (layout.tsx)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" vertex="1" parent="app_router">
+          <mxGeometry y="30" width="280" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="app_pages" value="页面 (Pages)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#ffffff;strokeColor=#b85450;" vertex="1" parent="app_router">
+          <mxGeometry y="60" width="280" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="page_home" value="- / (首页)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" vertex="1" parent="app_pages">
+          <mxGeometry y="30" width="280" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="page_rooms" value="- /rooms (列表页)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" vertex="1" parent="app_pages">
+          <mxGeometry y="60" width="280" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="page_room_detail" value="- /rooms/[id] (详情页)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" vertex="1" parent="app_pages">
+          <mxGeometry y="90" width="280" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="page_dashboard" value="- /dashboard (控制台)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" vertex="1" parent="app_pages">
+          <mxGeometry y="120" width="280" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="page_auth" value="- /login &amp; /register (认证)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" vertex="1" parent="app_pages">
+          <mxGeometry y="150" width="280" height="30" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="app_api" value="API 路由" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="app_router">
+          <mxGeometry y="260" width="280" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="api_auth" value="- /api/auth/*" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" vertex="1" parent="app_api">
+          <mxGeometry y="30" width="280" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="api_rooms" value="- /api/rooms/*" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" vertex="1" parent="app_api">
+          <mxGeometry y="60" width="280" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Layer 3: Components -->
+        <mxCell id="components" value="组件 (Components)" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="680" y="100" width="280" height="420" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="comp_primitives" value="基础组件 (Primitives)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#ffffff;strokeColor=#82b366;" vertex="1" parent="components">
+          <mxGeometry y="30" width="280" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="prim_items" value="Primitives.tsx&#xa;(Button, Badge, Input)" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;" vertex="1" parent="comp_primitives">
+          <mxGeometry y="30" width="280" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp_compound" value="复合 / 结构化组件" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#ffffff;strokeColor=#82b366;" vertex="1" parent="components">
+          <mxGeometry y="130" width="280" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="compound_items" value="- Layout.tsx (布局)&#xa;- Modal.tsx / Drawer.tsx (弹窗/抽屉)&#xa;- Menu.tsx (菜单)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;" vertex="1" parent="comp_compound">
+          <mxGeometry y="30" width="280" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp_features" value="功能 / 业务组件" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#ffffff;strokeColor=#82b366;" vertex="1" parent="components">
+          <mxGeometry y="260" width="280" height="160" as="geometry"/>
+        </mxCell>
+        <mxCell id="feature_items" value="- HomePageClient.tsx&#xa;- RoomsPageClient.tsx&#xa;- BookingModal.tsx (预订)&#xa;- FeedbackModal.tsx (反馈)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;" vertex="1" parent="comp_features">
+          <mxGeometry y="30" width="280" height="130" as="geometry"/>
+        </mxCell>
+
+        <!-- Layer 4: State & Logic -->
+        <mxCell id="logic" value="逻辑 &amp; 状态" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="100" width="280" height="300" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="logic_context" value="上下文 (Context)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="logic">
+          <mxGeometry y="30" width="280" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="context_auth" value="AuthContext.tsx" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" vertex="1" parent="logic_context">
+          <mxGeometry y="30" width="280" height="50" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="logic_hooks" value="Hooks (钩子)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="logic">
+          <mxGeometry y="110" width="280" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="hooks_items" value="- useReservation.ts&#xa;- useClickOutside.ts" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;" vertex="1" parent="logic_hooks">
+          <mxGeometry y="30" width="280" height="70" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="logic_services" value="服务 / 库" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="logic">
+          <mxGeometry y="210" width="280" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="service_items" value="- apiService.ts&#xa;- request.ts / jwt.ts" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;" vertex="1" parent="logic_services">
+          <mxGeometry y="30" width="280" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Layer 5: Data Actions -->
+        <mxCell id="data_actions" value="服务端 Actions (Server Actions)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="320" y="520" width="280" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="action_items" value="bookings.ts / reviews.ts" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="320" y="550" width="280" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- Connections -->
+        <mxCell id="c1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="client" target="app_router">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="app_pages" target="components">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="components" target="logic">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="app_pages" target="data_actions">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="app_api" target="logic_services">
+          <mxGeometry relative="1" as="geometry">
+             <Array as="points">
+              <mxPoint x="620" y="320"/>
+              <mxPoint x="620" y="450"/>
+              <mxPoint x="1180" y="450"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

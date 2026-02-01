@@ -1,24 +1,23 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 
-// --- Button ---
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'outline' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({ 
-  children, 
-  variant = 'primary', 
-  size = 'md', 
-  isLoading, 
-  className = '', 
+export const Button: React.FC<ButtonProps> = ({
+  children,
+  variant = 'primary',
+  size = 'md',
+  isLoading,
+  className = '',
   disabled,
-  ...props 
+  ...props
 }) => {
   const baseStyles = "inline-flex items-center justify-center font-medium transition-all duration-200 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
-  
+
   const variants = {
     primary: "bg-brand-green text-white hover:bg-brand-dark focus:ring-brand-green shadow-md hover:shadow-lg",
     outline: "border-2 border-brand-green text-brand-green hover:bg-brand-accent/30 focus:ring-brand-green",
@@ -32,7 +31,7 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   return (
-    <button 
+    <button
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
       disabled={disabled || isLoading}
       {...props}
@@ -43,17 +42,16 @@ export const Button: React.FC<ButtonProps> = ({
   );
 };
 
-// --- Badge ---
-export const Badge: React.FC<{ children: React.ReactNode; variant?: 'success' | 'warning' | 'neutral' }> = ({ 
-  children, 
-  variant = 'neutral' 
+export const Badge: React.FC<{ children: React.ReactNode; variant?: 'success' | 'warning' | 'neutral' }> = ({
+  children,
+  variant = 'neutral'
 }) => {
   const styles = {
     success: "bg-green-100 text-green-800 border-green-200",
     warning: "bg-amber-100 text-amber-800 border-amber-200",
     neutral: "bg-gray-100 text-gray-800 border-gray-200",
   };
-  
+
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[variant]}`}>
       {children}
@@ -61,7 +59,6 @@ export const Badge: React.FC<{ children: React.ReactNode; variant?: 'success' | 
   );
 };
 
-// --- Input ---
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
