@@ -159,7 +159,8 @@ export const Footer: React.FC = () => (
         <div className="col-span-1">
           <h3 className="text-sm md:text-lg font-bold mb-2 md:mb-4 text-brand-accent">快速链接</h3>
           <ul className="space-y-2 text-xs md:text-sm text-gray-300">
-            <li className="hover:text-white cursor-pointer transition-colors">寻找空间</li>
+            <li><Link href="/rooms" className="hover:text-white transition-colors">寻找空间</Link></li>
+            <li><Link href="/about" className="hover:text-white transition-colors">关于我们</Link></li>
             <li className="hover:text-white cursor-pointer transition-colors">会员服务</li>
             <li className="hover:text-white cursor-pointer transition-colors">企业合作</li>
           </ul>
