@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/services/apiService';
 import { Booking } from '@/types';
@@ -60,7 +61,7 @@ export default function DashboardPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 bg-brand-cream min-h-screen">
       <div className="bg-white rounded-lg shadow-neo border-2 border-black p-6 md:p-8 mb-8 flex flex-col md:flex-row items-center md:items-start text-center md:text-left space-y-4 md:space-y-0 md:space-x-6">
         <div className="relative">
-            <img src={user?.avatar} alt={user?.name} className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-black shadow-sm" />
+            <Image src={user?.avatar || ''} alt={user?.name || ''} width={96} height={96} className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-black shadow-sm" />
             <div className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-2 border-black rounded-full"></div>
         </div>
         <div className="flex-1">
@@ -84,7 +85,7 @@ export default function DashboardPage() {
           {bookings.map((booking) => (
             <div key={booking.id} className="bg-white rounded-lg shadow-neo hover:shadow-neo-lg transition-all p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center border-2 border-black group">
               <div className="flex-shrink-0 w-full md:w-48 mb-4 md:mb-0 md:mr-6">
-                <img src={booking.imageUrl} alt="Room" className="w-full h-36 md:h-32 object-cover rounded-md border-2 border-black shadow-sm transition-all" />
+                <Image src={booking.imageUrl} alt="Room" fill className="object-cover rounded-md border-2 border-black shadow-sm transition-all" />
               </div>
               
               <div className="flex-grow space-y-3 w-full">

@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { Metadata } from 'next';
 import { Coffee, BookOpen, Zap, Users, Shield, Clock } from 'lucide-react';
 import { Button } from '@/components/Primitives';
@@ -15,10 +16,12 @@ export default function AboutPage() {
       {/* Hero Section */}
       <section className="relative h-[400px] md:h-[500px] flex items-center justify-center overflow-hidden border-b-4 border-black">
         <div className="absolute inset-0">
-          <img 
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop" 
-            alt="About StarStudy" 
-            className="w-full h-full object-cover opacity-40"
+          <Image
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop"
+            alt="About StarStudy"
+            fill
+            className="object-cover opacity-40"
+            priority
           />
           <div className="absolute inset-0 bg-brand-cream/60 mix-blend-multiply"></div>
         </div>
@@ -40,9 +43,11 @@ export default function AboutPage() {
           <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-20">
             <div className="w-full md:w-1/2">
               <div className="relative border-4 border-black shadow-neo transform hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-300">
-                <img 
-                  src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070&auto=format&fit=crop" 
-                  alt="Our Story" 
+                <Image
+                  src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070&auto=format&fit=crop"
+                  alt="Our Story"
+                  width={600}
+                  height={400}
                   className="w-full h-auto object-cover transition-all duration-500"
                 />
               </div>
@@ -131,34 +136,38 @@ export default function AboutPage() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[400px] md:h-[500px]">
             <div className="col-span-2 md:col-span-2 row-span-2 relative border-4 border-black overflow-hidden group shadow-neo">
-              <img 
-                src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2301&auto=format&fit=crop" 
-                alt="Main Space" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              <Image
+                src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2301&auto=format&fit=crop"
+                alt="Main Space"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
                 <span className="text-white bg-black px-2 py-1 font-black text-lg border-2 border-white">开放式研习区</span>
               </div>
             </div>
             <div className="col-span-1 md:col-span-1 row-span-1 relative border-4 border-black overflow-hidden group shadow-neo">
-              <img 
-                src="https://images.unsplash.com/photo-1517502884422-41e157d2ed44?q=80&w=2300&auto=format&fit=crop" 
-                alt="Focus Room" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              <Image
+                src="https://images.unsplash.com/photo-1517502884422-41e157d2ed44?q=80&w=2300&auto=format&fit=crop"
+                alt="Focus Room"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
             </div>
             <div className="col-span-1 md:col-span-1 row-span-1 relative border-4 border-black overflow-hidden group shadow-neo">
-               <img 
-                src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2070&auto=format&fit=crop" 
-                alt="Meeting Room" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+               <Image
+                src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2070&auto=format&fit=crop"
+                alt="Meeting Room"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
             </div>
             <div className="col-span-2 md:col-span-2 row-span-1 relative border-4 border-black overflow-hidden group shadow-neo">
-               <img 
-                src="https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?q=80&w=2070&auto=format&fit=crop" 
-                alt="Lounge" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+               <Image
+                src="https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?q=80&w=2070&auto=format&fit=crop"
+                alt="Lounge"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
                 <span className="text-white bg-black px-2 py-1 font-black text-lg border-2 border-white">休闲休息区</span>

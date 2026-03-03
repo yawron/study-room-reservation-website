@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import Image from 'next/image';
 import { Calendar, Clock, CreditCard, CheckCircle2 } from 'lucide-react';
 import { Room } from '../types';
 import { Button, Input } from './Primitives';
@@ -55,7 +56,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ room, isOpen, onClos
           {step === 1 && (
             <div className="space-y-6">
               <div className="flex items-start space-x-4">
-                <img src={room.imageUrl} alt={room.name} className="w-24 h-24 rounded-lg border-2 border-black shadow-neo-sm object-cover" />
+                <Image src={room.imageUrl} alt={room.name} width={96} height={96} className="rounded-lg border-2 border-black shadow-neo-sm object-cover" />
                 <div>
                   <h3 className="font-bold text-black text-lg">{room.type}</h3>
                   <p className="text-sm text-gray-600 font-bold mt-1 line-clamp-2">{room.description}</p>

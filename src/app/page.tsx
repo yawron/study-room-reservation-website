@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/Primitives';
 import { Wifi, Coffee, Users, ArrowRight, Zap } from 'lucide-react';
 import { RoomType } from '@/types';
@@ -34,10 +35,12 @@ export default function HomePage() {
     <div className="flex flex-col">
       <section className="relative bg-brand-cream border-b-4 border-black overflow-hidden min-h-[400px] md:min-h-[500px] flex items-center">
         <div className="absolute inset-0 opacity-100">
-          <img
+          <Image
             src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1974&auto=format&fit=crop"
             alt="Anime Style Study Room"
-            className="w-full h-full object-cover opacity-90"
+            fill
+            className="object-cover opacity-90"
+            priority
           />
           <div className="absolute inset-0 bg-brand-green/20 mix-blend-overlay"></div>
         </div>

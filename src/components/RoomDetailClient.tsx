@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Room, Review } from '@/types';
 import { Button, Badge } from '@/components/Primitives';
@@ -53,10 +54,12 @@ export default function RoomDetailClient({ initialRoom, initialReviews }: RoomDe
 
         {/* Left: Image Section */}
         <div className="relative w-full lg:w-1/2 h-48 lg:h-full border-b-4 lg:border-b-0 lg:border-r-4 border-black group overflow-hidden bg-gray-100 shrink-0">
-            <img
+            <Image
               src={room.imageUrl}
               alt={room.name}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+              priority
             />
             <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-all duration-500"></div>
 
@@ -163,7 +166,7 @@ export default function RoomDetailClient({ initialRoom, initialReviews }: RoomDe
                                             <div className="flex items-center gap-2">
                                                 <div className="w-6 h-6 rounded-full bg-gray-200 border border-black overflow-hidden shrink-0">
                                                     {review.userAvatar ? (
-                                                        <img src={review.userAvatar} alt={review.userName} className="w-full h-full object-cover" />
+                                                        <Image src={review.userAvatar} alt={review.userName} fill className="object-cover" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-gray-500">
                                                             {review.userName.charAt(0)}

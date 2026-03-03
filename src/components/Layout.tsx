@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Coffee, Menu as MenuIcon, X, LogOut, User, LayoutDashboard, ChevronDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from './Primitives';
-import { Drawer } from './Drawer'; 
+import { Drawer } from './Drawer';
 import { Menu } from './Menu'; 
 
 export const Navbar: React.FC = () => {
@@ -65,7 +66,7 @@ export const Navbar: React.FC = () => {
                   <Menu.Trigger>
                     <div className="flex items-center space-x-2 text-sm font-bold text-black hover:bg-accent border-2 border-transparent hover:border-black px-3 py-2 rounded-lg transition-all select-none">
                        {user?.avatar ? (
-                         <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full border-2 border-black" />
+                         <Image src={user.avatar} alt="avatar" width={32} height={32} className="w-8 h-8 rounded-full border-2 border-black" />
                        ) : (
                          <div className="w-8 h-8 rounded-lg border-2 border-black bg-primary flex items-center justify-center">
                            <User className="w-4 h-4 text-white" />
@@ -130,7 +131,7 @@ export const Navbar: React.FC = () => {
                      <div className="px-2 space-y-3">
                         <div className="flex items-center px-2 py-2 text-brand-dark font-medium">
                            {user?.avatar ? (
-                             <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full border border-gray-200 mr-3" />
+                             <Image src={user.avatar} alt="avatar" width={32} height={32} className="w-8 h-8 rounded-full border border-gray-200 mr-3" />
                            ) : (
                              <div className="bg-brand-green/10 p-1.5 rounded-full mr-3">
                                 <User className="w-5 h-5 text-brand-green" />

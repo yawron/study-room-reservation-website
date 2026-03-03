@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Modal } from './Modal';
 import { Button } from './Primitives';
 import { Room } from '../types';
@@ -87,7 +88,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ room, isOpen, onCl
         ) : (
             <div className="space-y-6">
                 <div className="bg-accent/20 p-3 rounded-lg border-2 border-black flex items-start space-x-3">
-                    <img src={room.imageUrl} alt={room.name} className="w-12 h-12 rounded-lg border-2 border-black shadow-neo-sm object-cover flex-shrink-0" />
+                    <Image src={room.imageUrl} alt={room.name} width={48} height={48} className="rounded-lg border-2 border-black shadow-neo-sm object-cover flex-shrink-0" />
                     <div>
                         <p className="font-bold text-black text-sm">{room.name}</p>
                         <p className="text-xs font-bold text-gray-600">{room.type}</p>

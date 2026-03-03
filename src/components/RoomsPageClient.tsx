@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
 import { Room, RoomType } from '@/types';
 import { Badge, Button } from '@/components/Primitives';
 import { ChevronDown, Filter, MessageSquare, ArrowRight, Star, Users, Wifi } from 'lucide-react';
@@ -134,7 +135,7 @@ export default function RoomsPageClient({ initialRooms }: { initialRooms: Room[]
                 className="bg-white rounded-lg border-2 border-black shadow-neo hover:shadow-neo-lg hover:-translate-y-1 transition-all duration-200 group flex flex-col h-full cursor-pointer overflow-hidden"
               >
                 <div className="relative h-40 sm:h-48 border-b-2 border-black overflow-hidden">
-                  <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover transition-all duration-500" />
+                  <Image src={room.imageUrl} alt={room.name} fill className="object-cover transition-all duration-500" />
 
                   <div className="absolute top-3 right-3 flex gap-2">
                     {room.isAvailable ? (
