@@ -1,18 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useRef, ReactNode, useLayoutEffect, useEffect, useCallback } from 'react';
+import React, { useState, useRef, ReactNode, useLayoutEffect, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { useClickOutside } from '../hooks/useClickOutside';
-
-// Context
-interface MenuContextType {
-  isOpen: boolean;
-  toggle: () => void;
-  close: () => void;
-  triggerRef: React.MutableRefObject<HTMLDivElement | null>;
-}
-
-const MenuContext = createContext<MenuContextType | undefined>(undefined);
 
 // Root 组件
 interface MenuRootProps {
@@ -28,32 +18,57 @@ const Root: React.FC<MenuRootProps> = ({ children, className = '' }) => {
   const toggle = () => setIsOpen(!isOpen);
   const close = () => setIsOpen(false);
 
-  return (
-    <MenuContext.Provider value={{ isOpen, toggle, close, triggerRef }}>
-      <div ref={containerRef} className={`relative inline-block text-left ${className}`}>
-        {children}
-      </div>
-    </MenuContext.Provider>
-  );
-};
+  // 通过 cloneElement 传递状态给子组件
+  const childrenWithProps = React.Children.map(children, child => {
+    if (React.isValidElement(child)) {
+      return React.cloneElement(child as React.ReactElement<any>, {
+        isOpen,
+        toggle,
+        close,
+        triggerRef
+      });
+    }
+    return child;
+  });
 
-// Trigger 组件
-const Trigger: React.FC<{ children: ReactNode; className?: string }> = ({ children, className = '' }) => {
-  const context = useContext(MenuContext);
-  if (!context) throw new Error('Menu.Trigger must be used within Menu.Root');
-
   return (
-    <div ref={context.triggerRef} onClick={context.toggle} className={`cursor-pointer ${className}`}>
-      {children}
+    <div ref={containerRef} className={`relative inline-block text-left ${className}`}>
+      {childrenWithProps}
     </div>
   );
 };
 
+// Trigger 组件
+interface MenuTriggerProps {
+  children: ReactNode;
+  className?: string;
+  toggle?: () => void;
+  triggerRef?: React.MutableRefObject<HTMLDivElement | null>;
+}
+
+const Trigger: React.FC<MenuTriggerProps> = ({ children, className = '', toggle, triggerRef }) => (
+  <div ref={triggerRef} onClick={toggle} className={`cursor-pointer ${className}`}>
+    {children}
+  </div>
+);
+
 // List (下拉) 组件
-const List: React.FC<{ children: ReactNode; className?: string; align?: 'left' | 'right' }> = ({
+interface MenuListProps {
+  children: ReactNode;
+  className?: string;
+  align?: 'left' | 'right';
+  isOpen?: boolean;
+  close?: () => void;
+  triggerRef?: React.MutableRefObject<HTMLDivElement | null>;
+}
+
+const List: React.FC<MenuListProps> = ({
   children,
   className = '',
   align = 'right',
+  isOpen = false,
+  close,
+  triggerRef
 }) => {
   const [mounted, setMounted] = useState(false);
 
@@ -61,14 +76,11 @@ const List: React.FC<{ children: ReactNode; className?: string; align?: 'left' |
     setMounted(true);
   }, []);
 
-  const context = useContext(MenuContext);
-  if (!context) throw new Error('Menu.List must be used within Menu.Root');
-
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
 
   const computePos = useCallback(() => {
-    const triggerEl = context.triggerRef.current;
+    const triggerEl = triggerRef?.current;
     const dd = dropdownRef.current;
     if (!triggerEl) return;
     const rect = triggerEl.getBoundingClientRect();
@@ -76,26 +88,26 @@ const List: React.FC<{ children: ReactNode; className?: string; align?: 'left' |
     const top = rect.bottom + 8;
     const left = align === 'right' ? rect.right - width : rect.left;
     setPos({ top, left });
-  }, [align, context.triggerRef]);
+  }, [align, triggerRef]);
 
   useLayoutEffect(() => {
-    if (!context.isOpen) return;
+    if (!isOpen) return;
     computePos();
-  }, [context.isOpen, computePos]);
+  }, [isOpen, computePos]);
 
   useEffect(() => {
-    if (!context.isOpen) return;
+    if (!isOpen) return;
     const onScroll = () => computePos();
     const onResize = () => computePos();
     document.addEventListener('scroll', onScroll, true);
     window.addEventListener('resize', onResize);
     const onDocDown = (e: MouseEvent) => {
       const dd = dropdownRef.current;
-      const triggerEl = context.triggerRef.current;
+      const triggerEl = triggerRef?.current;
       const target = e.target as Node;
       if (dd && dd.contains(target)) return;
       if (triggerEl && triggerEl.contains(target)) return;
-      context.close();
+      close?.();
     };
     document.addEventListener('mousedown', onDocDown);
     return () => {
@@ -103,9 +115,9 @@ const List: React.FC<{ children: ReactNode; className?: string; align?: 'left' |
       window.removeEventListener('resize', onResize);
       document.removeEventListener('mousedown', onDocDown);
     };
-  }, [context.isOpen, computePos, context.triggerRef, context]);
+  }, [isOpen, computePos, triggerRef, close]);
 
-  if (!context.isOpen || !mounted) return null;
+  if (!isOpen || !mounted) return null;
 
   return ReactDOM.createPortal(
     <div
@@ -128,24 +140,24 @@ interface MenuItemProps {
   className?: string;
   icon?: ReactNode;
   variant?: 'default' | 'danger';
+  close?: () => void;
 }
 
-const Item: React.FC<MenuItemProps> = ({ 
-  children, 
-  onClick, 
-  className = '', 
+const Item: React.FC<MenuItemProps> = ({
+  children,
+  onClick,
+  className = '',
   icon,
-  variant = 'default'
+  variant = 'default',
+  close
 }) => {
-  const context = useContext(MenuContext);
-  
   const handleClick = () => {
     if (onClick) onClick();
-    context?.close();
+    close?.();
   };
 
-  const variantStyles = variant === 'danger' 
-    ? 'text-destructive hover:bg-destructive/10 font-bold' 
+  const variantStyles = variant === 'danger'
+    ? 'text-destructive hover:bg-destructive/10 font-bold'
     : 'text-black hover:bg-accent font-bold';
 
   return (

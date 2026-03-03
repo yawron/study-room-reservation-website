@@ -1,15 +1,8 @@
- 'use client';
-import React, { createContext, useContext, useEffect, ReactNode } from 'react';
+'use client';
+import React, { useEffect, ReactNode } from 'react';
 import ReactDOM from 'react-dom';
 import { X } from 'lucide-react';
 import { useClickOutside } from '../hooks/useClickOutside';
-
-// Context API: 解决跨层级状态传递问题
-interface ModalContextType {
-  onClose: () => void;
-}
-
-const ModalContext = createContext<ModalContextType | undefined>(undefined);
 
 interface ModalRootProps {
   isOpen: boolean;
@@ -42,48 +35,48 @@ const Root: React.FC<ModalRootProps> = ({ isOpen, onClose, children, className =
   if (!isOpen || !mounted) return null;
 
   return ReactDOM.createPortal(
-    <ModalContext.Provider value={{ onClose }}>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200">
-        <div 
-          ref={contentRef} 
-          className={`bg-white rounded-lg border-2 border-black shadow-neo w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 ${className || 'max-w-lg'}`}
-          role="dialog"
-          aria-modal="true"
-        >
-          {children}
-        </div>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200">
+      <div
+        ref={contentRef}
+        className={`bg-white rounded-lg border-2 border-black shadow-neo w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 ${className || 'max-w-lg'}`}
+        role="dialog"
+        aria-modal="true"
+      >
+        {/* 通过 cloneElement 传递 onClose 给子组件 */}
+        {React.Children.map(children, child => {
+          if (React.isValidElement(child)) {
+            return React.cloneElement(child as React.ReactElement<any>, { onClose });
+          }
+          return child;
+        })}
       </div>
-    </ModalContext.Provider>,
+    </div>,
     document.body
   );
 };
 
-// 复合组件模式
+// 复合组件模式 - 直接接收 props
 interface ModalHeaderProps {
   children: ReactNode;
   className?: string;
   showClose?: boolean;
+  onClose?: () => void;
 }
 
-const Header: React.FC<ModalHeaderProps> = ({ children, className = '', showClose = true }) => {
-  const context = useContext(ModalContext);
-  if (!context) throw new Error('Modal.Header must be used within Modal.Root');
-  
-  return (
-    <div className={`px-6 py-4 border-b-2 border-black flex justify-between items-center bg-primary ${className}`}>
-      <h2 className="text-lg font-black text-white">{children}</h2>
-      {showClose && (
-        <button 
-          onClick={context.onClose} 
-          className="text-white hover:text-black hover:bg-white transition-all border-2 border-transparent hover:border-black hover:shadow-neo-sm rounded-lg p-1"
-          aria-label="Close"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      )}
-    </div>
-  );
-};
+const Header: React.FC<ModalHeaderProps> = ({ children, className = '', showClose = true, onClose }) => (
+  <div className={`px-6 py-4 border-b-2 border-black flex justify-between items-center bg-primary ${className}`}>
+    <h2 className="text-lg font-black text-white">{children}</h2>
+    {showClose && onClose && (
+      <button
+        onClick={onClose}
+        className="text-white hover:text-black hover:bg-white transition-all border-2 border-transparent hover:border-black hover:shadow-neo-sm rounded-lg p-1"
+        aria-label="Close"
+      >
+        <X className="w-5 h-5" />
+      </button>
+    )}
+  </div>
+);
 
 const Body: React.FC<{ children: ReactNode; className?: string }> = ({ children, className = '' }) => (
   <div className={`p-6 overflow-y-auto flex-1 ${className}`}>
