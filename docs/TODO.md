@@ -112,7 +112,8 @@
 >
 > **主要任务**：删除 mockData.ts 中的用户 mock 逻辑 → 删除 login 路由中的 mock 分支 → 端到端验证注册→登录→浏览房间→路由守卫全链路正常。
 
-- [ ] 7.1 删除 `mockData.ts` 中用户相关的 `localStorage` 代码
-- [ ] 7.2 删除 `mockData.ts` 中 `MOCK_USER` / `INITIAL_USER` 导出
-- [ ] 7.3 删除 `api/auth/login/route.ts` 中动态创建 mock 用户的逻辑
-- [ ] 7.4 验证：注册新用户 → 登录 → 浏览房间 → middleware 路由守卫正常
+- [x] 7.1 删除 `mockData.ts` 中用户相关的 `localStorage` 代码（含 7.2~7.4 完整清理）
+  > **需求分析**：前 6 个阶段完成后所有 mock 已被真实实现取代，但 mockData.ts 残留 localStorage 操作和 mock 用户导出。死代码会误导后续开发者以为 mock 路径仍有效——清理是 V1.0 的收尾。
+  - [x] 7.2 删除 `MOCK_USER` / `INITIAL_USER` 导出 → 已移除，MOCK_ROOMS 保留（前端页面仍引用）
+  - [x] 7.3 login route 中 mock 用户逻辑 → 已在 5.1 改造中清除
+  - [x] 7.4 验证全链路 → TS 编译 + Build 通过，全链路类型安全

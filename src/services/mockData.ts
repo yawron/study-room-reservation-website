@@ -1,41 +1,4 @@
-import { Room, RoomType, User } from '../types';
-
-const USERS_STORAGE_KEY = 'starstudy_db_users';
-
-export const INITIAL_USER: User = {
-  id: 'u1',
-  name: '陈同学',
-  email: 'chen@university.edu',
-  avatar: 'https://picsum.photos/200',
-};
-
-// Initialize DB if empty (Client side only)
-if (typeof window !== 'undefined' && !localStorage.getItem(USERS_STORAGE_KEY)) {
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify([INITIAL_USER]));
-}
-
-export const getStoredUsers = (): User[] => {
-    if (typeof window === 'undefined') return [];
-    const data = localStorage.getItem(USERS_STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-};
-
-export const addUser = (userData: { name: string; email: string }): User => {
-    const users = getStoredUsers();
-    const newUser: User = {
-        id: 'u' + (users.length + 1),
-        name: userData.name,
-        email: userData.email,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.name}`
-    };
-    users.push(newUser);
-    if (typeof window !== 'undefined') {
-        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-    }
-    return newUser;
-};
-
-export const MOCK_USER = INITIAL_USER;
+import { Room, RoomType } from '../types'
 
 export const MOCK_ROOMS: Room[] = [
   {
@@ -191,5 +154,5 @@ export const MOCK_ROOMS: Room[] = [
     description: '适合设计作业与课程项目协作，桌面宽敞可摆放资料。',
     amenities: ['WiFi', '大工作台', '电源插座'],
     isAvailable: true,
-  }
-];
+  },
+]

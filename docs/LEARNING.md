@@ -250,3 +250,22 @@
 
 **踩坑**
 - `Prisma.RoomWhereInput` 等 Prisma 类型导入路径复杂（Prisma 7 自定义 output），改用 `Record<string, unknown>` 类型兼容 `where` 参数
+
+---
+
+## 7.1~7.4 清理 mock 数据（完成于 2026-07-07）
+
+**需求背景**
+V1.0 目标已达成——注册/登录/房间 API 全部接入真实数据。mockData.ts 中的 localStorage 和 mock 用户导出已成为死代码，不清理会误导后续开发。
+
+**做了什么**
+删除 mockData.ts 中用户 mock 代码（localStorage 操作、INITIAL_USER、MOCK_USER、getStoredUsers、addUser），MOCK_ROOMS 保留（前端页面仍作 fallback 引用）。
+
+**技术点**
+- 删除死代码时需全局 grep 确认无引用：用 `grep MOCK_USER` 等方式逐项验证
+
+**关键决策**
+- MOCK_ROOMS 暂不删除：前端 rooms 页面仍直接 import 作为 fallback，删除会导致前端报错
+
+**踩坑**
+- 无
