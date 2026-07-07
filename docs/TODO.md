@@ -41,6 +41,7 @@
 > **需求背景**：前端转全栈 → 多了后端 API → ① 每个 API 都要返回 HTTP 响应 → 响应格式不统一则前端要写 N 套解析逻辑 → 统一 `{ code, data, message }`；② 用户传什么数据不可控（空字符串、非法邮箱、太短的密码）→ 手写 if 校验又臭又长 → 用 Zod 声明式校验，一行 Schema 顶十行 if。
 >
 > **3.1~3.5 协同工作流**：
+>
 > ```
 > 请求进来
 >   → withValidation(registerSchema, handler)
@@ -53,10 +54,15 @@
 > **主要任务**：定义全项目统一的响应格式 → 错误处理包装函数（消除 try/catch 样板代码）→ Zod 校验体系（输入有保障、代码不冗余）。
 
 - [x] 3.1 定义统一响应格式 `{ code: number, data: T | null, message: string }`
+  > **需求分析**：前端依赖 API 返回格式做统一解析——如果每个接口返回结构不同，前端需要为每个接口写独立的错误处理和数据提取逻辑。定义统一的响应契约（状态码 + 数据 + 消息）是全部 API 的通信基础。
 - [x] 3.2 编写 API 错误处理包装函数（try/catch → 统一错误响应）
+  > **需求分析**：每个 Route Handler 都可能抛异常（数据库超时、字段冲突、未知错误），手动在每个接口写 try/catch 会重复且容易遗漏异常类型。需要一个全局错误边界统一捕获所有未处理异常并转换为标准错误响应。
 - [x] 3.3 安装 Zod：`npm install zod`
+  > **需求分析**：API 的输入来自不可信的外部请求——字段缺失、类型错误、格式非法都是常态。没有校验层会导致脏数据写入数据库或程序运行时崩溃。声明式 Schema 校验是后端接口的标准输入防护手段。
 - [x] 3.4 编写注册/登录接口的 Zod Schema（email 格式、password 最小长度等）
+  > **需求分析**：认证接口是系统安全的第一道防线——邮箱格式不合法会浪费数据库查询，密码过短会导致暴力破解。注册和登录的校验规则不同（密码长度要求、是否必填姓名），需要两套独立的校验契约。
 - [x] 3.5 编写 Zod 校验中间件函数（同时给 withErrorHandler 加了 ZodError 捕获）
+  > **需求分析**：校验逻辑不应侵入业务 Handler——解析请求体、校验字段、转换类型这些横切关注点应当与业务逻辑解耦。中间件模式让校验失败自动返回错误响应，校验通过后 Handler 收到的数据是已被类型保证的干净输入。
 
 ### 阶段 4：注册接口
 
@@ -64,13 +70,15 @@
 >
 > **主要任务**：安装 bcrypt → 实现 POST /api/auth/register → Zod 校验 → 邮箱唯一性检查 → 密码哈希 → 写入数据库。
 
-- [ ] 4.1 安装 bcrypt：`npm install bcryptjs @types/bcryptjs`（用 bcryptjs 避免原生编译）
-- [ ] 4.2 新建 `POST /api/auth/register` Route Handler
-- [ ] 4.3 Zod 校验请求体（name 必填, email 格式, password ≥ 6 位）
-- [ ] 4.4 检查邮箱是否已注册 → 已存在返回 409
-- [ ] 4.5 bcrypt.hash(password, 10) 生成哈希
-- [ ] 4.6 Prisma 写入 User 表
-- [ ] 4.7 返回统一格式 `{ code: 200, data: { user }, message: '注册成功' }`
+- [x] 4.1 安装 bcrypt：`npm install bcryptjs @types/bcryptjs`（用 bcryptjs 避免原生编译）
+  > **需求分析**：用户密码不能明文存储——数据库泄露则所有账号直接暴露。密码哈希是认证系统的安全底线，bcrypt 内置盐值和计算成本因子，是业界标准的密码哈希算法。选纯 JS 实现的 bcryptjs 而非原生 bcrypt，避免跨平台编译问题。
+- [x] 4.2 新建 `POST /api/auth/register` Route Handler（含 4.3~4.7 完整链路）
+  > **需求分析**：当前注册接口不入库——用户提交后凭空生成 ID 返回，刷新即丢失。需要将注册从 mock 流程改造为真实的"校验 → 查重 → 哈希 → 入库"链路，这是用户数据写入数据库的第一个入口。
+  - [x] 4.3 Zod 校验请求体（name 必填, email 格式, password ≥ 6 位）→ 通过 withValidation + registerSchema 实现
+  - [x] 4.4 检查邮箱是否已注册 → 已存在返回 409 → prisma.user.findUnique
+  - [x] 4.5 bcrypt.hash(password, 10) 生成哈希 → bcryptjs 10 轮盐
+  - [x] 4.6 Prisma 写入 User 表 → prisma.user.create
+  - [x] 4.7 返回统一格式 `{ code: 200, data: { user }, message: '注册成功' }` → success() 工厂
 
 ### 阶段 5：登录接口改造
 

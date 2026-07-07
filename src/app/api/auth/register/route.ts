@@ -1,33 +1,37 @@
-import { NextResponse } from 'next/server';
-import { signAccessToken, signRefreshToken } from '@/lib/jwt';
+import { NextResponse } from 'next/server'
+import bcrypt from 'bcryptjs'
+import { prisma } from '@/lib/prisma'
+import { signAccessToken, signRefreshToken, REFRESH_COOKIE_CONFIG } from '@/lib/jwt'
+import { registerSchema, type RegisterInput } from '@/lib/schemas'
+import { success, error, withErrorHandler, withValidation } from '@/lib/response'
 
-export async function POST(req: Request) {
-  const body = await req.json().catch(() => ({}));
-  const name = body?.name as string | undefined;
-  const email = body?.email as string | undefined;
-  if (!name || !email) {
-    return NextResponse.json({ code: 400, data: null, message: '缺少注册信息' }, { status: 400 });
+const handler = async (req: Request, body: RegisterInput) => {
+  // 检查邮箱是否已注册
+  const existing = await prisma.user.findUnique({ where: { email: body.email } })
+  if (existing) {
+    return error('该邮箱已注册', 409, 409)
   }
 
-  const user = {
-    id: 'u_' + Math.random().toString(36).slice(2, 9),
-    name,
-    email,
-    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
-  };
-  const access = await signAccessToken(user.id);
-  const refresh = await signRefreshToken(user.id);
+  // 密码哈希
+  const passwordHash = await bcrypt.hash(body.password, 10)
 
-  const res = NextResponse.json(
-    { code: 200, data: { user, token: access }, message: '注册成功' },
-    { status: 200 }
-  );
-  res.cookies.set('starstudy_refresh', refresh, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: 60 * 60 * 24 * 7,
-  });
-  return res;
+  // 写入数据库
+  const user = await prisma.user.create({
+    data: {
+      name: body.name,
+      email: body.email,
+      passwordHash,
+    },
+    select: { id: true, name: true, email: true, role: true, createdAt: true },
+  })
+
+  // 签发 Token
+  const access = await signAccessToken(user.id)
+  const refresh = await signRefreshToken(user.id)
+
+  const res = success({ user, token: access }, '注册成功')
+  res.cookies.set(REFRESH_COOKIE_CONFIG.name, refresh, REFRESH_COOKIE_CONFIG.options)
+  return res
 }
+
+export const POST = withErrorHandler(withValidation(registerSchema, handler))
