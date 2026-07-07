@@ -86,13 +86,14 @@
 >
 > **主要任务**：改造 login API → 查数据库验证密码 → 签发 Access Token + Refresh Token → Set-Cookie RT → 验证 me 接口返回真实用户。
 
-- [ ] 5.1 改造 `POST /api/auth/login` Route Handler
-- [ ] 5.2 Zod 校验请求体
-- [ ] 5.3 Prisma 查 DB 获取用户（by email）
-- [ ] 5.4 bcrypt.compare 验证密码 → 不匹配返回 401
-- [ ] 5.5 签发 JWT Access Token + Refresh Token（保留现有 `lib/jwt.ts`）
-- [ ] 5.6 返回 Token，Set-Cookie Refresh Token
-- [ ] 5.7 验证：登录成功后 `/api/auth/me` 返回用户信息
+- [x] 5.1 改造 `POST /api/auth/login` Route Handler（含 5.2~5.7 完整链路）
+  > **需求分析**：当前登录不查数据库不验密码——只要给个邮箱就能登。需要将登录从 mock 假登录改造为"查 DB → 验密码 → 签发 Token"的完整认证流程。同时 /api/auth/me 也从 mock 改为 Prisma 查询，登录后获取的是真实用户信息。
+  - [x] 5.2 Zod 校验请求体 → withValidation + loginSchema
+  - [x] 5.3 Prisma 查 DB 获取用户（by email）→ prisma.user.findUnique
+  - [x] 5.4 bcrypt.compare 验证密码 → 不匹配返回 401（不区分"用户不存在"和"密码错误"防止撞库）
+  - [x] 5.5 签发 JWT Access Token + Refresh Token（保留现有 lib/jwt.ts）
+  - [x] 5.6 返回 Token，Set-Cookie Refresh Token
+  - [x] 5.7 /api/auth/me 从 mock 改为 Prisma 查询，返回真实用户信息
 
 ### 阶段 6：房间 API 改造
 

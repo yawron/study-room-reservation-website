@@ -1,31 +1,35 @@
-import { NextResponse } from 'next/server';
-import { INITIAL_USER } from '@/services/mockData';
-import { signAccessToken, signRefreshToken, REFRESH_COOKIE_CONFIG } from '@/lib/jwt';
+import bcrypt from 'bcryptjs'
+import { prisma } from '@/lib/prisma'
+import { signAccessToken, signRefreshToken, REFRESH_COOKIE_CONFIG } from '@/lib/jwt'
+import { loginSchema, type LoginInput } from '@/lib/schemas'
+import { success, error, withErrorHandler, withValidation } from '@/lib/response'
 
-export async function POST(req: Request) {
-  const body = await req.json().catch(() => ({}));
-  const email = body?.email as string | undefined;
-  if (!email) {
-    return NextResponse.json({ code: 400, data: null, message: '缺少邮箱' }, { status: 400 });
+const handler = async (req: Request, body: LoginInput) => {
+  // 查找用户
+  const user = await prisma.user.findUnique({ where: { email: body.email } })
+  if (!user) {
+    return error('邮箱或密码错误', 401, 401)
   }
 
-  const user =
-    email === INITIAL_USER.email
-      ? INITIAL_USER
-      : {
-          id: 'u_' + Math.random().toString(36).slice(2, 9),
-          name: email.split('@')[0],
-          email,
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(email.split('@')[0])}`,
-        };
+  // 验证密码
+  const valid = await bcrypt.compare(body.password, user.passwordHash)
+  if (!valid) {
+    return error('邮箱或密码错误', 401, 401)
+  }
 
-  const access = await signAccessToken(user.id);
-  const refresh = await signRefreshToken(user.id);
+  // 签发 Token
+  const access = await signAccessToken(user.id)
+  const refresh = await signRefreshToken(user.id)
 
-  const res = NextResponse.json(
-    { code: 200, data: { user, token: access }, message: '登录成功' },
-    { status: 200 }
-  );
-  res.cookies.set(REFRESH_COOKIE_CONFIG.name, refresh, REFRESH_COOKIE_CONFIG.options);
-  return res;
+  const res = success(
+    {
+      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      token: access,
+    },
+    '登录成功',
+  )
+  res.cookies.set(REFRESH_COOKIE_CONFIG.name, refresh, REFRESH_COOKIE_CONFIG.options)
+  return res
 }
+
+export const POST = withErrorHandler(withValidation(loginSchema, handler))

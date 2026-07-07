@@ -1,31 +1,24 @@
-import { NextResponse } from 'next/server';
-import { verifyAccess } from '@/lib/jwt';
-import { INITIAL_USER } from '@/services/mockData';
+import { verifyAccess } from '@/lib/jwt'
+import { prisma } from '@/lib/prisma'
+import { error, success, withErrorHandler } from '@/lib/response'
 
-export async function GET(req: Request) {
-  const authHeader = req.headers.get('Authorization');
+export const GET = withErrorHandler(async (req: Request) => {
+  const authHeader = req.headers.get('Authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return NextResponse.json({ code: 401, data: null, message: '未授权' }, { status: 401 });
+    return error('未授权', 401, 401)
   }
 
-  const token = authHeader.split(' ')[1];
+  const token = authHeader.split(' ')[1]
+  const payload = await verifyAccess(token)
+  const userId = payload.sub as string
 
-  try {
-    const payload = await verifyAccess(token);
-    const userId = payload.sub as string;
-
-    // 模拟数据库查询
-    // 在真实场景中，这里应该根据 userId 查询数据库
-    const user = {
-      ...INITIAL_USER,
-      id: userId,
-      // 如果不是 u1，可以动态生成一些信息，或者直接返回 INITIAL_USER 用于演示
-      name: userId === 'u1' ? INITIAL_USER.name : `User ${userId}`,
-      email: userId === 'u1' ? INITIAL_USER.email : `${userId}@example.com`,
-    };
-
-    return NextResponse.json({ code: 200, data: user, message: '获取成功' }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ code: 401, data: null, message: '令牌无效或已过期' }, { status: 401 });
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, name: true, email: true, role: true, createdAt: true },
+  })
+  if (!user) {
+    return error('用户不存在', 404, 404)
   }
-}
+
+  return success(user, '获取成功')
+})
