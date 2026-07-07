@@ -228,3 +228,25 @@
 
 **踩坑**
 - 无
+
+---
+
+## 6.1~6.3 房间 API 改造（完成于 2026-07-07）
+
+**需求背景**
+认证打通后房间数据仍来自 mock——这是"消灭 mock"的最后一环核心业务 API。同时需分页和筛选能力。
+
+**做了什么**
+重写 GET /api/rooms：Prisma findMany + count + skip/take 分页 + type 白名单筛选。
+
+**技术点**
+- `Promise.all([findMany, count])`：数据和总数并行查询，约等于两次独立 SQL，总耗时约等于较慢那一次
+- `skip/take` 分页而非游标：房间量级小（14），offset 分页足够
+- `Math.min(50, limit)`：限制单页最大 50 条防止恶意大 limit
+
+**关键决策**
+- type 参数用白名单校验：不合法的 type 值直接忽略而非报错（静默回退到全部数据），业务上比 400 更友好
+- 不分页不返回全部：有默认值兜底（page=1, limit=10）
+
+**踩坑**
+- `Prisma.RoomWhereInput` 等 Prisma 类型导入路径复杂（Prisma 7 自定义 output），改用 `Record<string, unknown>` 类型兼容 `where` 参数

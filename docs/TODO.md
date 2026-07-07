@@ -101,9 +101,10 @@
 >
 > **主要任务**：改造 GET /api/rooms → Prisma 查询替代 mockData → 支持 type 筛选 + 分页 → 返回数据含分页信息。
 
-- [ ] 6.1 改造 `GET /api/rooms`，从 Prisma 查询替代 `mockData`
-- [ ] 6.2 支持 query 参数：`?type=QUIET_POD&page=1&limit=10`
-- [ ] 6.3 返回数据 + 分页信息
+- [x] 6.1 改造 `GET /api/rooms`，从 Prisma 查询替代 `mockData`（含 6.2~6.3 完整链路）
+  > **需求分析**：认证打通后用户能注册登录，但浏览房间时数据仍来自 mock 而非数据库——这是"消灭 mock 数据"的最后一环核心业务 API。同时需要分页和筛选，否则房间多了前端可能一次加载几百条数据。
+  - [x] 6.2 支持 query 参数 `?type=QUIET_POD&page=1&limit=10` → searchParams 解析 + 白名单校验
+  - [x] 6.3 返回数据 + 分页信息 → `{ rooms, pagination: { page, limit, total, totalPages } }`
 
 ### 阶段 7：清理
 
