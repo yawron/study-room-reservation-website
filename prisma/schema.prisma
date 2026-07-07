@@ -1,13 +1,102 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma Schema — StarStudy 自习室预订平台
+// 四张核心表：User, Room, Booking, Review
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
+// Prisma 代码生成器 根据 Schema 自动生成代码
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client" // 使用哪个 Generator
   output   = "../generated/prisma"
 }
 
+// 数据源 - 连接哪个数据库
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" // 数据库地址在 .env
+}
+
+// enum 就是给字段限定固定可选值列表
+// ── 枚举 ──────────────────────────────────────────
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum RoomType {
+  QUIET_POD
+  COLLAB_SUITE
+  WINDOW_SEAT
+  CONFERENCE
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+// model 代表数据库实体模型，执行迁移后会在PostgreSQL中生成对应数据表table
+
+// ── 用户 ──────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid()) // 默认值自动生成
+  name         String
+  email        String   @unique // 唯一约束 同一个邮箱不可以重复
+  passwordHash String
+  role         UserRole @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt // 数据更新时间，每次修改该行数据自动刷新时间
+
+  bookings Booking[] // 一对多关联：一个 User 多条 bookings
+  reviews  Review[] // 一对多关联：一个 User 多条 reviews 
+}
+
+// ── 自习室 ────────────────────────────────────────
+
+model Room {
+  id           String   @id @default(cuid())
+  name         String
+  type         RoomType
+  capacity     Int
+  pricePerHour Float
+  imageUrl     String
+  description  String
+  amenities    String[]
+  isAvailable  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  bookings Booking[]
+  reviews  Review[]
+}
+
+// ── 预订 ──────────────────────────────────────────
+
+model Booking {
+  id         String        @id @default(cuid())
+  roomId     String
+  userId     String
+  date       DateTime      @db.Date // // 预订日期，数据库字段类型限定为纯日期（不含时分秒）
+  startTime  String // "HH:mm" 格式
+  endTime    String // "HH:mm" 格式
+  status     BookingStatus @default(CONFIRMED)
+  totalPrice Float
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  room Room @relation(fields: [roomId], references: [id]) // 多对一外键关联：当前订单归属哪一个房间
+  user User @relation(fields: [userId], references: [id]) // 多对一外键关联：当前订单归属哪一位下单用户
+}
+
+// ── 评价 ──────────────────────────────────────────
+
+model Review {
+  id        String   @id @default(cuid())
+  roomId    String
+  userId    String
+  rating    Int // 1~5 星级评分
+  comment   String
+  createdAt DateTime @default(now())
+
+  room Room @relation(fields: [roomId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
