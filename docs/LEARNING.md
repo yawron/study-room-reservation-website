@@ -244,3 +244,104 @@
 
 **踩的坑 / 注意事项**
 - `prisma db seed` 在 package.json 中配置 `prisma.seed` 在 Prisma 7 中不生效，报 "No seed command configured"，必须改用 `prisma.config.ts` 的 `migrations.seed` 字段
+
+---
+
+## 3.1 定义统一响应格式 `{ code, data, message }`（完成于 2026-07-07）
+
+**需求背景**
+V1.0 从纯前端 mock 阶段转入全栈开发，后续 4 个阶段（注册/登录/房间 API/清理）至少涉及 4 个 Route Handler。现有 API 虽然已非正式地使用 `{ code, data, message }` 结构，但没有公共类型和工厂函数——每个 API 手写 `NextResponse.json({ code: ..., data: ..., message: ... }, { status: ... })`，格式容易不一致，且新增 API 时需要重复这段样板代码。统一响应格式 + 工厂函数是写 API 之前的"第一块砖"——所有后续 API 都基于它，改动一处全局生效。
+实际代码中抽取了 `ApiResponse<T>` 泛型类型和 `success()`/`error()` 两个工厂函数。
+
+**做了什么**
+创建 `src/lib/response.ts`：定义 `ApiResponse<T>` 泛型类型 + `success()` / `error()` 两个工厂函数。
+
+**技术点**
+- `ApiResponse<T>`：泛型响应类型，`data` 字段类型随业务变化，`code` 和 `message` 固定
+- `success(data, message, status)` / `error(message, code, status)` 返回 `NextResponse.json()`
+
+**关键决策**
+- 选工厂函数而非每个 API 手写 `NextResponse.json(...)`：消除样板代码，且响应格式变更只需改一处
+- `success` 默认 status=200，`error` 的 `code` 和 HTTP `status` 分开：HTTP 状态码和业务码是两个概念，允许 `error('xx', 400, 200)` 这种组合
+
+**踩坑**
+- 无
+
+---
+
+## 3.2 编写 API 错误处理包装函数（完成于 2026-07-07）
+
+**需求背景**
+每个 Route Handler 手写 try/catch → 错误处理逻辑在每个 API 里复制粘贴 → 与 3.1 目标一致，把错误处理也抽出来，API 只写业务逻辑。
+
+**做了什么**
+新增 `withErrorHandler`，接收 Handler → 返回带 try/catch 的 Handler，异常自动转 500 响应。
+
+**技术点**
+- 高阶函数：`(handler) => (req, ...args) => handler(...).catch(err => error(500))`
+- 泛型 `T extends unknown[]` 支持 `{ params }` 动态参数
+
+**关键决策**
+- 放在 `response.ts` 而非独立文件：本质是"异常 → 统一响应格式"，与 success/error 紧密耦合
+
+**踩坑**
+- 无
+
+---
+
+## 3.3 安装 Zod（完成于 2026-07-07）
+
+**需求背景**
+用户通过 API 传的数据不可控（空值、非法格式、缺失字段）→ 手写 if/else 校验冗长易遗漏不可复用 → Zod 声明式 Schema 一行顶十行 if → 校验和类型推断合二为一。
+
+**做了什么**
+`npm install zod`，版本 4.4.3。
+
+**技术点**
+- Zod：运行时数据校验库，`schema.parse(input)` → 合法通过/非法自动抛错，完美对接 3.2 的 withErrorHandler
+
+**关键决策**
+- 选 Zod 而非手写 if 校验：Schema 可跨 API 复用（注册/登录共用 email/password Schema），错误信息自动生成无需手写
+
+**踩坑**
+- 无
+
+---
+
+## 3.4 编写注册/登录 Zod Schema（完成于 2026-07-07）
+
+**需求背景**
+注册和登录都需要校验 email 和 password，但规则不同（注册密码 ≥6 位 vs 登录只需非空）。两个 API 如果各自写校验逻辑会重复。把 Schema 集中定义在一个文件里，注册/登录只引用不重复写。
+
+**做了什么**
+创建 `src/lib/schemas.ts`：`registerSchema`（name + email + password ≥ 6）、`loginSchema`（email + password 非空），导出 `RegisterInput` / `LoginInput` 类型。
+
+**技术点**
+- `z.string().email()` / `.min(N, msg)` 链式 API
+- `z.infer<typeof schema>` 从 Schema 反推 TS 类型，无需手动维护 interface 和 Schema 两套定义
+
+**关键决策**
+- login 的 password 只校验非空而非 ≥6 位：登录时目标是验证身份，密码合法性在注册时已保证，登录只要不为空即可
+
+**踩坑**
+- 无
+
+---
+
+## 3.5 编写 Zod 校验中间件（完成于 2026-07-07）
+
+**需求背景**
+Schema 定义好了（3.4），但每个 Handler 里都要手写 `schema.parse(await req.json())` 还是样板代码。中间件把"解析请求体 + Schema 校验"从 Handler 抽到外层，Handler 只拿干净的、带类型的 body。
+
+**做了什么**
+新增 `withValidation(schema, handler)` → 自动 `req.json()` + `schema.parse()`，通过则传 body 给 handler。同步在 `withErrorHandler` 中增加 `ZodError` 捕获 → 校验失败自动返回 400 + 中文错误消息。
+
+**技术点**
+- `withValidation` + `withErrorHandler` 组合：`export const POST = withErrorHandler(withValidation(schema, handler))`
+- Zod 4 的 `ZodError` 通过 `instanceof` 在 catch 块中判断
+
+**关键决策**
+- 校验失败不返回 500 而是 400：校验失败是"用户输入有误"（客户端错误），不是服务器错误
+
+**踩坑**
+- 无
